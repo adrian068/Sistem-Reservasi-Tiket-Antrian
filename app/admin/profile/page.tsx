@@ -11,10 +11,6 @@ import {
   X, 
   LogOut, 
   ChevronDown, 
-  Home, 
-  Newspaper, 
-  Calendar, 
-  FileText,
   User,
   Mail,
   Lock,
@@ -24,6 +20,8 @@ import {
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { buildAdminNavigation } from "@/lib/admin-navigation"
+import { AdminModeSwitch } from "@/components/admin-mode-switch"
 
 interface ProfileData {
   id: string
@@ -189,13 +187,7 @@ export default function AdminProfilePage() {
     }
   }
 
-  const navigationItems = [
-    { icon: Home, label: "Dashboard", href: "/admin/dashboard", active: false },
-    { icon: School, label: "Manajemen Sekolah", href: "/admin/sekolah", active: false },
-    { icon: Newspaper, label: "Manajemen Berita", href: "/admin/berita", active: false },
-    { icon: Calendar, label: "Manajemen Agenda", href: "/admin/agenda", active: false },
-    { icon: FileText, label: "Laporan Reservasi", href: "/admin/reservasi", active: false },
-  ]
+  const navigationItems = buildAdminNavigation("/admin/profile")
 
   if (loading) {
     return (
@@ -271,8 +263,8 @@ export default function AdminProfilePage() {
           </ul>
         </nav>
 
-        {/* Logout Button */}
-        <div className="p-4 border-t border-sidebar-border">
+        <div className="p-4 border-t border-sidebar-border space-y-3">
+          <AdminModeSwitch collapsed={sidebarCollapsed} />
           <Button
             variant="ghost"
             onClick={handleLogout}

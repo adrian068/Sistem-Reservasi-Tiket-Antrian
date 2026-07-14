@@ -89,7 +89,7 @@ INSERT INTO "public"."penggunas" (
 ) VALUES (
   'Admin Disdik Banjarmasin',
   'disdikbanjarmasin@gmail.com',
-  '$2b$10$uwl/OGp7o59yuPnBJ6RLuOL0ERjMNYH4hBBlF4kYbbSPZkRmLD8Yi',
+  '$2b$10$g9mJFtisgNBXn8nLnGF7CuQ3GfAfZOGMIVedMkVnTyKbZ8vH8LxF.',
   'ADMIN',
   NOW(),
   NOW()
@@ -106,10 +106,11 @@ ON CONFLICT (email) DO UPDATE SET
 SELECT '=== VERIFICATION ===' as step;
 
 SELECT 
-  pengguna_id,
+  id_penggunas,
   nama,
   email,
   peran,
+  bidang_slug,
   dibuat_pada
 FROM "public"."penggunas"
 WHERE email = 'disdikbanjarmasin@gmail.com';

@@ -288,7 +288,7 @@ export default function ForgotPasswordPage() {
         {/* Footer */}
         <div className="text-center mt-8">
           <p className="text-sm text-blue-100">
-            © 2025 SIREDI. All rights reserved.
+            © 2026 SIREDI. All rights reserved.
           </p>
         </div>
       </div>

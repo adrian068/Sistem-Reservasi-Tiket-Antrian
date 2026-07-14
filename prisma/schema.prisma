@@ -8,53 +8,81 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model Agenda {
-  id               String    @id @default(cuid()) @map("id_agendas")
-  title            String    @map("judul") @db.VarChar(255)
-  slug             String    @unique @db.VarChar(255)
-  description      String    @map("deskripsi") @db.Text
-  date             DateTime  @map("tanggal") @db.Date
-  time             String    @map("waktu") @db.VarChar(10)
-  location         String    @map("lokasi") @db.VarChar(255)
-  address          String?   @map("alamat")
-  organizer        String    @default("Dinas Pendidikan Kota Banjarmasin") @map("penyelenggara") @db.VarChar(255)
-  capacity         Int       @default(0) @map("kapasitas")
-  category         String    @default("Lainnya") @map("kategori") @db.VarChar(50)
-  registrationFee  String    @default("Gratis") @map("biaya_pendaftaran") @db.VarChar(100)
-  contactPerson    String?   @map("kontak_person")
-  imageUrl         String?   @map("gambar_url")
-  status           Status    @default(SCHEDULED)
-  idPenggunas      BigInt?   @map("id_penggunas")
-  idSekolahs       BigInt?   @map("id_sekolahs")
-  createdAt        DateTime  @default(now()) @map("dibuat_pada")
-  updatedAt        DateTime  @updatedAt @map("diperbarui_pada")
+model Pengguna {
+  id           BigInt   @id @default(autoincrement()) @map("id_penggunas")
+  nama         String   @db.VarChar(100)
+  email        String   @unique @db.VarChar(150)
+  passwordHash String   @map("password_hash") @db.VarChar(255)
+  peran        RoleType @default(ADMIN)
+  bidangSlug   String?  @map("bidang_slug") @db.VarChar(180)
+  aktif        Boolean  @default(true)
+  createdAt    DateTime @default(now()) @map("dibuat_pada")
+  updatedAt    DateTime @updatedAt @map("diperbarui_pada")
 
-  pengguna Pengguna? @relation(fields: [idPenggunas], references: [id], onDelete: SetNull)
-  sekolah  Sekolah?  @relation(fields: [idSekolahs], references: [id], onDelete: SetNull)
+  @@map("penggunas")
+  @@index([bidangSlug])
+  @@index([aktif])
+}
 
-  @@map("agendas")
-  @@index([idPenggunas])
-  @@index([idSekolahs])
+enum RoleType {
+  ADMIN
+  USER
+  SUPER_ADMIN
+  ADMIN_PAUD
 }
 
 model Layanan {
-  id          BigInt      @id @default(autoincrement()) @map("id_layanans")
-  name        String      @map("nama") @db.VarChar(255)
-  description String?     @map("deskripsi") @db.Text
-  icon        String?     @map("ikon") @db.VarChar(100)
-  color       String?     @map("warna") @db.VarChar(50)
-  isActive    Boolean     @default(true) @map("aktif")
-  createdAt   DateTime    @default(now()) @map("dibuat_pada")
-  updatedAt   DateTime    @updatedAt @map("diperbarui_pada")
-  
-  reservations Reservasi[]
+  id          BigInt   @id @default(autoincrement()) @map("id_layanans")
+  name        String   @map("nama") @db.VarChar(255)
+  description String?  @map("deskripsi") @db.Text
+  icon        String?  @map("ikon") @db.VarChar(100)
+  color       String?  @map("warna") @db.VarChar(50)
+  isActive    Boolean  @default(true) @map("aktif")
+  createdAt   DateTime @default(now()) @map("dibuat_pada")
+  updatedAt   DateTime @updatedAt @map("diperbarui_pada")
+
+  perbidanganLinks LayananPerbidangan[]
+  reservations     Reservasi[]
 
   @@map("layanans")
 }
 
+model Perbidangan {
+  id             BigInt   @id @default(autoincrement()) @map("id_perbidangans")
+  nama           String   @db.VarChar(150)
+  slug           String   @unique @db.VarChar(180)
+  deskripsi      String?  @db.Text
+  ikon           String?  @db.VarChar(100)
+  warna          String?  @db.VarChar(50)
+  urutan         Int      @default(0)
+  aktif          Boolean  @default(true)
+  kapasitasSlot  Int?     @map("kapasitas_slot")
+  dibuatPada     DateTime @default(now()) @map("dibuat_pada")
+  diperbaruiPada DateTime @updatedAt @map("diperbarui_pada")
+
+  layananLinks LayananPerbidangan[]
+  petugas      Petugas[]
+
+  @@map("perbidangans")
+  @@index([nama])
+  @@index([aktif])
+  @@index([urutan])
+}
+
+model LayananPerbidangan {
+  idLayanan       BigInt @map("id_layanans")
+  idPerbidangan   BigInt @map("id_perbidangans")
+
+  layanan     Layanan     @relation(fields: [idLayanan], references: [id], onDelete: Cascade)
+  perbidangan Perbidangan @relation(fields: [idPerbidangan], references: [id], onDelete: Cascade)
+
+  @@id([idLayanan, idPerbidangan])
+  @@map("layanan_perbidangans")
+}
+
 model Reservasi {
   id                String            @id @default(cuid()) @map("id_reservations")
-  queueNumber       String            @unique @map("nomor_antrian") @db.VarChar(20)
+  queueNumber       String            @unique @map("nomor_antrian") @db.VarChar(50)
   service           String            @map("layanan") @db.VarChar(255)
   idLayanan         BigInt?           @map("id_layanans")
   name              String            @map("nama") @db.VarChar(255)
@@ -68,16 +96,10 @@ model Reservasi {
   createdAt         DateTime          @default(now()) @map("dibuat_pada")
   updatedAt         DateTime          @updatedAt @map("diperbarui_pada")
 
-  layanan Layanan? @relation(fields: [idLayanan], references: [id], onDelete: SetNull)
+  layanan Layanan?       @relation(fields: [idLayanan], references: [id], onDelete: SetNull)
+  logs    LogReservasi[]
 
   @@map("reservations")
-}
-
-enum Status {
-  SCHEDULED @map("Terjadwal")
-  ONGOING   @map("Berlangsung")
-  COMPLETED @map("Selesai")
-  CANCELLED @map("Dibatalkan")
 }
 
 enum ReservationStatus {
@@ -87,113 +109,98 @@ enum ReservationStatus {
   CANCELLED @map("Dibatalkan")
 }
 
-model Pengguna {
-  id        BigInt   @id @default(autoincrement()) @map("id_penggunas")
-  nama      String   @db.VarChar(100)
-  email     String   @unique @db.VarChar(150)
-  passwordHash String @map("password_hash") @db.VarChar(255)
-  peran     RoleType @default(ADMIN)
-  createdAt DateTime @default(now()) @map("dibuat_pada")
-  updatedAt DateTime @updatedAt @map("diperbarui_pada")
+model ReservationSetting {
+  id         Int      @id @default(1)
+  mode       String   @default("auto") @db.VarChar(20)
+  pesanTutup String?  @map("pesan_tutup") @db.Text
+  pesanBuka  String?  @map("pesan_buka") @db.Text
+  updatedAt  DateTime @updatedAt @map("diperbarui_pada")
+  updatedBy  String?  @map("diperbarui_oleh") @db.VarChar(150)
 
-  agendas Agenda[]
-  beritas Berita[]
-
-  @@map("penggunas")
+  @@map("reservation_settings")
 }
 
-enum RoleType {
-  ADMIN
-  USER
+model Petugas {
+  id             String   @id @default(cuid()) @map("id_petugas")
+  idPerbidangan  BigInt   @map("id_perbidangans")
+  nama           String   @db.VarChar(150)
+  jabatan        String   @db.VarChar(150)
+  urutan         Int      @default(0)
+  aktif          Boolean  @default(true)
+  dibuatPada     DateTime @default(now()) @map("dibuat_pada")
+  diperbaruiPada DateTime @updatedAt @map("diperbarui_pada")
+
+  perbidangan Perbidangan      @relation(fields: [idPerbidangan], references: [id], onDelete: Cascade)
+  kehadiran   KehadiranPetugas?
+
+  @@map("petugas")
+  @@index([idPerbidangan])
 }
 
-model Berita {
-  id          BigInt      @id @default(autoincrement()) @map("id_beritas")
-  judul       String      @db.VarChar(200)
-  slug        String      @unique @db.VarChar(255)
-  ringkasan   String?     @db.Text
-  konten      String      @db.Text
-  kategori    NewsCategory
-  status      NewsStatus  @default(DRAFT)
-  tanggalTerbit DateTime? @map("tanggal_terbit") @db.Date
-  unggulan    Boolean     @default(false)
-  gambarUtama String?     @map("gambar_utama") @db.VarChar(255)
-  views       Int         @map("dilihat") @default(0)
-  tags        String?     @db.VarChar(255)
-  idPenggunas BigInt?     @map("id_penggunas")
-  idSekolahs  BigInt?     @map("id_sekolahs")
-  createdAt   DateTime    @default(now()) @map("dibuat_pada")
-  updatedAt   DateTime    @updatedAt @map("diperbarui_pada")
+model KehadiranPetugas {
+  petugasId   String   @id @map("id_petugas")
+  hadir       Boolean  @default(false)
+  diRuangan   Boolean  @default(false) @map("di_ruangan")
+  updatedAt   DateTime @updatedAt @map("diperbarui_pada")
 
-  pengguna Pengguna? @relation(fields: [idPenggunas], references: [id], onDelete: SetNull)
-  sekolah  Sekolah?  @relation(fields: [idSekolahs], references: [id], onDelete: SetNull)
+  petugas Petugas @relation(fields: [petugasId], references: [id], onDelete: Cascade)
 
-  @@map("beritas")
-  @@index([status])
-  @@index([kategori])
-  @@index([slug])
-  @@index([idPenggunas])
-  @@index([idSekolahs])
-}
-
-enum NewsCategory {
-  PENGUMUMAN
-  KEGIATAN
-  PENDAFTARAN
-  KEUANGAN
-  KERJASAMA
-  BEASISWA
-
-  @@map("NewsCategory")
-}
-
-enum NewsStatus {
-  DRAFT
-  PUBLISHED
-  ARCHIVED
-
-  @@map("NewsStatus")
-}
-
-model Sekolah {
-  id           BigInt   @id @default(autoincrement()) @map("id_sekolahs")
-  nama         String   @db.VarChar(255)
-  alamat       String?  @db.Text
-  kecamatan    String?  @db.VarChar(100)
-  jenjang      String?  @db.VarChar(50)
-  akreditasi   String?  @db.VarChar(10)
-  status       String?  @db.VarChar(50)
-  telepon      String?  @db.VarChar(20)
-  email        String?  @db.VarChar(150)
-  tahunBerdiri String?  @map("tahun_berdiri") @db.VarChar(10)
-  deskripsi    String?  @db.Text
-  gambarUtama  String?  @map("gambar_utama") @db.VarChar(255)
-  foto1        String?  @map("foto_1") @db.VarChar(255)
-  foto2        String?  @map("foto_2") @db.VarChar(255)
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
-
-  beritas Berita[]
-  agendas Agenda[]
-
-  @@map("sekolahs")
-  @@index([jenjang])
-  @@index([kecamatan])
-  @@index([akreditasi])
-  @@index([status])
-  @@index([nama])
+  @@map("kehadiran_petugas")
 }
 
 model OtpReset {
-  id           BigInt   @id @default(autoincrement()) @map("id_otp_resets")
-  email        String   @db.VarChar(150)
-  otp          String   @db.VarChar(6)
+  id            BigInt   @id @default(autoincrement()) @map("id_otp_resets")
+  email         String   @db.VarChar(150)
+  otp           String   @db.VarChar(6)
   berlakuSampai DateTime @map("berlaku_sampai")
-  digunakan    Boolean  @default(false) @map("digunakan")
-  dibuatPada   DateTime @default(now()) @map("dibuat_pada")
-  
+  digunakan     Boolean  @default(false) @map("digunakan")
+  dibuatPada    DateTime @default(now()) @map("dibuat_pada")
+
   @@map("otp_resets")
   @@index([email])
   @@index([otp])
   @@index([berlakuSampai])
+}
+
+model JadwalOperasional {
+  id        BigInt   @id @default(autoincrement()) @map("id_jadwal")
+  hari      Int
+  jamBuka   String   @map("jam_buka") @db.VarChar(5)
+  jamTutup  String   @map("jam_tutup") @db.VarChar(5)
+  aktif     Boolean  @default(true)
+  keterangan String? @db.VarChar(255)
+
+  @@unique([hari])
+  @@map("jadwal_operasional")
+}
+
+model SlotWaktu {
+  id             BigInt  @id @default(autoincrement()) @map("id_slot")
+  kode           String  @unique @db.VarChar(50)
+  label          String  @db.VarChar(100)
+  kapasitas      Int     @default(1)
+  kategoriDurasi String  @map("kategori_durasi") @db.VarChar(20)
+  menitDurasi    Int     @map("menit_durasi")
+  urutan         Int     @default(0)
+  aktif          Boolean @default(true)
+
+  @@map("slot_waktu")
+  @@index([aktif])
+  @@index([urutan])
+}
+
+model LogReservasi {
+  id          BigInt             @id @default(autoincrement()) @map("id_log")
+  idReservasi String             @map("id_reservations")
+  statusLama  ReservationStatus? @map("status_lama")
+  statusBaru  ReservationStatus  @map("status_baru")
+  catatan     String?            @db.Text
+  diubahOleh  String?            @map("diubah_oleh") @db.VarChar(150)
+  createdAt   DateTime           @default(now()) @map("dibuat_pada")
+
+  reservasi Reservasi @relation(fields: [idReservasi], references: [id], onDelete: Cascade)
+
+  @@map("log_reservasi")
+  @@index([idReservasi])
+  @@index([createdAt])
 }

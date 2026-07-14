@@ -27,3 +27,7 @@ yarn-error.log*
 next-env.d.ts
 
 /lib/generated/prisma
+
+# akun lokal saat database tidak terhubung
+/data/local-users.json
+/data/reservation-settings.json

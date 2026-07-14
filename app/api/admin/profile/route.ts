@@ -1,5 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSession, createSession } from '@/lib/auth'
+import {
+  getSession,
+  createSession,
+  OFFLINE_ADMIN_SESSION_ID,
+  getSessionProfile,
+  isLocalUserId,
+} from '@/lib/auth'
+import { isAdminUser } from '@/lib/auth-shared'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
 import { z } from 'zod'
@@ -35,20 +42,16 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Get user details from database
-    const pengguna = await prisma.pengguna.findUnique({
-      where: { id: BigInt(user.id) },
-      select: {
-        id: true,
-        nama: true,
-        email: true,
-        peran: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    })
+    if (!isAdminUser(user)) {
+      return NextResponse.json(
+        { error: 'Akses ditolak. Hanya admin.' },
+        { status: 403 }
+      )
+    }
 
-    if (!pengguna) {
+    const profile = await getSessionProfile(user)
+
+    if (!profile) {
       return NextResponse.json(
         { error: 'User tidak ditemukan' },
         { status: 404 }
@@ -57,14 +60,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: {
-        id: pengguna.id.toString(),
-        nama: pengguna.nama,
-        email: pengguna.email,
-        peran: pengguna.peran,
-        createdAt: pengguna.createdAt,
-        updatedAt: pengguna.updatedAt,
-      },
+      data: profile,
     })
   } catch (error) {
     console.error('Get profile error:', error)
@@ -84,6 +80,23 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
+      )
+    }
+
+    if (!isAdminUser(user)) {
+      return NextResponse.json(
+        { error: 'Akses ditolak. Hanya admin.' },
+        { status: 403 }
+      )
+    }
+
+    if (user.id === OFFLINE_ADMIN_SESSION_ID || isLocalUserId(user.id)) {
+      return NextResponse.json(
+        {
+          error:
+            'Profil tidak dapat diubah saat database tidak terhubung. Perbaiki DATABASE_URL di .env untuk sinkron ke Supabase.',
+        },
+        { status: 503 }
       )
     }
 

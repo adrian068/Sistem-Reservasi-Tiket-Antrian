@@ -3,7 +3,10 @@ import { authenticateUser, createSession } from '@/lib/auth'
 import { z } from 'zod'
 
 const loginSchema = z.object({
-  email: z.string().email('Email tidak valid'),
+  username: z
+    .string()
+    .min(3, 'Username minimal 3 karakter')
+    .max(150, 'Username terlalu panjang'),
   password: z.string().min(1, 'Password harus diisi'),
 })
 
@@ -15,12 +18,15 @@ export async function POST(request: NextRequest) {
     const validatedData = loginSchema.parse(body)
     
     // Authenticate user
-    const user = await authenticateUser(validatedData.email, validatedData.password)
+    const user = await authenticateUser(validatedData.username, validatedData.password)
     
     if (!user) {
       return NextResponse.json(
-        { error: 'Email atau password salah' },
-        { status: 401 }
+        {
+          error:
+            'Username atau password salah. Pastikan username sama persis seperti yang ditampilkan di Kelola Admin.',
+        },
+        { status: 401 },
       )
     }
     
@@ -33,6 +39,7 @@ export async function POST(request: NextRequest) {
         nama: user.nama,
         email: user.email,
         peran: user.peran,
+        bidangSlug: user.bidangSlug,
       },
     })
   } catch (error) {

@@ -18,9 +18,22 @@ import { id } from "date-fns/locale"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { ScrollReveal } from "@/components/scroll-reveal"
-import { ThemeToggle } from "@/components/theme-toggle"
 import { SiteHeader } from "@/components/site-header"
-import { checkReservationStatus, isTimeSlotPassed } from "@/lib/reservation-hours"
+import { PublicSiteFooter } from "@/components/public-site-footer"
+import { ReservationTicketCard } from "@/components/reservation-ticket-card"
+import {
+  ReservationStepIndicator,
+  RESERVATION_TOTAL_STEPS,
+} from "@/components/reservation-step-indicator"
+import { SirediPageBackground } from "@/components/siredi-page-background"
+import { isTimeSlotPassed, isSlotSelectable } from "@/lib/reservation-hours"
+import { getTimeSlotsForDay } from "@/lib/time-slots"
+import { TimeSlotColumns, type TimeSlotOption } from "@/components/time-slot-columns"
+import {
+  getDefaultLayananDisplay,
+  layanansToDisplay,
+  type LayananDisplay,
+} from "@/lib/default-layanans"
 
 // ⚡ Lazy load PDF generator (jsPDF library cukup besar ~100KB)
 const generateTicketPDF = async (data: ReservationTicketData) => {
@@ -31,33 +44,6 @@ const generateTicketPDF = async (data: ReservationTicketData) => {
 // Type import tetap normal
 import type { ReservationTicketData } from "@/lib/pdf-generator"
 
-// Icon mapping
-const iconMap: { [key: string]: any } = {
-  Users,
-  School,
-  GraduationCap,
-  Baby,
-}
-
-interface LayananFromAPI {
-  id: string
-  name: string
-  description: string | null
-  icon: string | null
-  color: string | null
-  isActive: boolean
-  createdAt: string
-  updatedAt: string
-}
-
-interface ServiceDisplay {
-  id: string
-  name: string
-  icon: any
-  description: string
-  color: string
-}
-
 // Format a JS Date to local YYYY-MM-DD (no timezone shift)
 const formatLocalYmd = (d: Date) => {
   const y = d.getFullYear()
@@ -66,11 +52,20 @@ const formatLocalYmd = (d: Date) => {
   return `${y}-${m}-${day}`
 }
 
-const getTimeSlots = async (selectedDate: Date | undefined) => {
-  if (!selectedDate) return []
+const getTimeSlots = async (
+  selectedDate: Date | undefined,
+  idLayanan: string,
+  service: string,
+) => {
+  if (!selectedDate || !service) return []
 
   try {
-    const response = await fetch(`/api/time-slots?date=${formatLocalYmd(selectedDate)}`)
+    const params = new URLSearchParams({
+      date: formatLocalYmd(selectedDate),
+      service,
+    })
+    if (idLayanan) params.set("idLayanan", idLayanan)
+    const response = await fetch(`/api/time-slots?${params.toString()}`)
     if (!response.ok) {
       throw new Error('Failed to fetch time slots')
     }
@@ -83,31 +78,10 @@ const getTimeSlots = async (selectedDate: Date | undefined) => {
     console.error('Error fetching time slots:', error)
   }
 
-  // Fallback to static data if API fails
-  const dayOfWeek = selectedDate.getDay()
-
-  // Saturday (6) and Sunday (0) - no service
-  if (dayOfWeek === 6 || dayOfWeek === 0) {
-    return []
-  }
-
-  // Friday (5) - only 8 AM to 10 AM
-  if (dayOfWeek === 5) {
-    return [
-      { id: "08:00", time: "08:00 - 09:00", capacity: 1, booked: 0 },
-      { id: "09:00", time: "09:00 - 10:00", capacity: 1, booked: 0 },
-    ]
-  }
-
-  // Monday-Thursday (1-4) - 8 AM to 12 PM, then 2 PM to 4 PM (lunch break 12-2 PM, tutup jam 16:00)
-  return [
-    { id: "08:00", time: "08:00 - 09:00", capacity: 1, booked: 0 },
-    { id: "09:00", time: "09:00 - 10:00", capacity: 1, booked: 0 },
-    { id: "10:00", time: "10:00 - 11:00", capacity: 1, booked: 0 },
-    { id: "11:00", time: "11:00 - 12:00", capacity: 1, booked: 0 },
-    { id: "14:00", time: "14:00 - 15:00", capacity: 1, booked: 0 },
-    { id: "15:00", time: "15:00 - 16:00", capacity: 1, booked: 0 },
-  ]
+  return getTimeSlotsForDay(selectedDate.getDay()).map((slot) => ({
+    ...slot,
+    booked: 0,
+  }))
 }
 
 interface ReservationData {
@@ -138,81 +112,53 @@ export default function ReservasiPage() {
   const [queueNumber, setQueueNumber] = useState<string>("")
   const [estimatedTime, setEstimatedTime] = useState<string>("")
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false)
-  const [timeSlots, setTimeSlots] = useState<Array<{id: string, time: string, capacity: number, booked: number}>>([])
+  const [timeSlots, setTimeSlots] = useState<TimeSlotOption[]>([])
   const [isLoadingTimeSlots, setIsLoadingTimeSlots] = useState(false)
-  const [services, setServices] = useState<ServiceDisplay[]>([])
+  const [timeSlotTick, setTimeSlotTick] = useState(0)
+  const [services, setServices] = useState<LayananDisplay[]>([])
   const [isLoadingServices, setIsLoadingServices] = useState(true)
-  const [reservationStatus, setReservationStatus] = useState<{isOpen: boolean, message: string, nextOpenTime?: string} | null>(null)
+  const [reservationStatus, setReservationStatus] = useState<{
+    isOpen: boolean
+    message: string
+    nextOpenTime?: string
+    mode?: string
+    source?: string
+  } | null>(null)
 
-  // Cek status reservasi real-time
+  // Status reservasi dari server (termasuk aturan admin buka/tutup)
   useEffect(() => {
-    const checkStatus = () => {
-      const status = checkReservationStatus()
-      setReservationStatus(status)
+    const fetchStatus = async () => {
+      try {
+        const res = await fetch("/api/reservasi/status")
+        const data = await res.json()
+        if (res.ok && data.success) {
+          setReservationStatus(data.data)
+        }
+      } catch (error) {
+        console.error("Error fetching reservation status:", error)
+      }
     }
-    
-    // Cek langsung saat mount
-    checkStatus()
-    
-    // Update setiap detik untuk benar-benar real-time
-    // Ini penting untuk mendeteksi perubahan status tepat waktu (misalnya jam 16:00:00)
-    const interval = setInterval(checkStatus, 1000)
-    
+
+    fetchStatus()
+    const interval = setInterval(fetchStatus, 5000)
     return () => clearInterval(interval)
   }, [])
 
-  // Fetch layanans from API
+  // Fetch layanans from API (cadangan: PTK, SD, SMP, PAUD)
   useEffect(() => {
     const fetchLayanans = async () => {
       try {
-        const response = await fetch('/api/layanans')
-        if (response.ok) {
-          const result = await response.json()
-          if (result.success) {
-            // Transform API data to ServiceDisplay format
-            const transformedServices: ServiceDisplay[] = result.data.map((layanan: LayananFromAPI) => ({
-              id: layanan.id,
-              name: layanan.name,
-              description: layanan.description || "Layanan pendidikan",
-              icon: iconMap[layanan.icon || 'School'] || School,
-              color: layanan.color || 'bg-blue-500',
-            }))
-            setServices(transformedServices)
-          }
+        const response = await fetch("/api/layanans")
+        const result = await response.json()
+
+        if (response.ok && result.success && Array.isArray(result.data) && result.data.length > 0) {
+          setServices(layanansToDisplay(result.data))
+        } else {
+          setServices(getDefaultLayananDisplay())
         }
       } catch (error) {
-        console.error('Error fetching layanans:', error)
-        // Fallback to default services if API fails
-        setServices([
-          {
-            id: "default-1",
-            name: "PTK (Pendidik dan Tenaga Kependidikan)",
-            icon: Users,
-            description: "Layanan untuk guru, kepala sekolah, dan tenaga kependidikan",
-            color: "bg-blue-500",
-          },
-          {
-            id: "default-2",
-            name: "SD Umum",
-            icon: School,
-            description: "Layanan untuk Sekolah Dasar",
-            color: "bg-green-500",
-          },
-          {
-            id: "default-3",
-            name: "SMP Umum",
-            icon: GraduationCap,
-            description: "Layanan untuk Sekolah Menengah Pertama",
-            color: "bg-purple-500",
-          },
-          {
-            id: "default-4",
-            name: "PAUD",
-            icon: Baby,
-            description: "Layanan untuk Pendidikan Anak Usia Dini",
-            color: "bg-orange-500",
-          },
-        ])
+        console.error("Error fetching layanans:", error)
+        setServices(getDefaultLayananDisplay())
       } finally {
         setIsLoadingServices(false)
       }
@@ -222,36 +168,90 @@ export default function ReservasiPage() {
   }, [])
 
   const handleServiceSelect = (serviceId: string, serviceName: string) => {
-    setReservationData({ 
-      ...reservationData, 
+    setReservationData({
+      ...reservationData,
       service: serviceName,
-      idLayanan: serviceId 
+      idLayanan: serviceId,
     })
     setStep(2)
   }
 
-  const loadTimeSlots = async (date: Date) => {
+  const handleDateContinue = () => {
+    if (!selectedDate) return
+    setReservationData({ ...reservationData, date: selectedDate, timeSlot: "" })
+    loadTimeSlots(selectedDate, reservationData.idLayanan, reservationData.service)
+    setStep(3)
+  }
+
+  const handleTimeContinue = async () => {
+    if (!reservationData.timeSlot || !selectedDate) return
+
+    const slots = await loadTimeSlots(
+      selectedDate,
+      reservationData.idLayanan,
+      reservationData.service,
+    )
+    const slot = slots.find((s) => s.id === reservationData.timeSlot)
+    if (!slot || !isSlotSelectable(slot, selectedDate)) {
+      alert("Slot waktu tidak tersedia lagi. Silakan pilih waktu lain.")
+      setReservationData((prev) => ({ ...prev, timeSlot: "" }))
+      return
+    }
+
+    setStep(4)
+  }
+
+  const loadTimeSlots = async (date: Date, idLayanan: string, service: string) => {
     setIsLoadingTimeSlots(true)
     try {
-      const slots = await getTimeSlots(date)
+      const slots = await getTimeSlots(date, idLayanan, service)
       setTimeSlots(slots)
+      return slots as TimeSlotOption[]
     } catch (error) {
       console.error('Error loading time slots:', error)
       setTimeSlots([])
+      return [] as TimeSlotOption[]
     } finally {
       setIsLoadingTimeSlots(false)
     }
   }
 
-  const handleDateTimeSelect = () => {
-    if (selectedDate && reservationData.timeSlot) {
-      setReservationData({ ...reservationData, date: selectedDate })
-      setStep(3)
+  // Muat ulang slot + cek waktu lewat (WITA) saat langkah pemilihan waktu
+  useEffect(() => {
+    if (step !== 3 || !selectedDate || !reservationData.service) return
+
+    const refresh = () => {
+      void loadTimeSlots(selectedDate, reservationData.idLayanan, reservationData.service)
     }
-  }
+
+    refresh()
+    const poll = setInterval(refresh, 15000)
+    const clock = setInterval(() => setTimeSlotTick((t) => t + 1), 60000)
+
+    return () => {
+      clearInterval(poll)
+      clearInterval(clock)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, selectedDate, reservationData.idLayanan, reservationData.service])
+
+  // Kosongkan pilihan jika slot sudah penuh atau lewat
+  useEffect(() => {
+    if (step !== 3 || !reservationData.timeSlot || !selectedDate) return
+
+    const slot = timeSlots.find((s) => s.id === reservationData.timeSlot)
+    if (!slot || !isSlotSelectable(slot, selectedDate)) {
+      setReservationData((prev) => ({ ...prev, timeSlot: "" }))
+    }
+  }, [step, timeSlots, reservationData.timeSlot, selectedDate, timeSlotTick])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (reservationStatus?.mode === "closed") {
+      alert(reservationStatus.message || "Reservasi sedang ditutup oleh admin.")
+      return
+    }
 
     try {
       console.log('Submitting reservation data:', {
@@ -306,7 +306,10 @@ export default function ReservasiPage() {
       if (result.success) {
         setQueueNumber(result.data.queueNumber)
         setEstimatedTime(result.data.estimatedCallTime)
-        setStep(4)
+        setStep(5)
+        if (selectedDate) {
+          loadTimeSlots(selectedDate, reservationData.idLayanan, reservationData.service)
+        }
       } else {
         throw new Error(result.error || 'Failed to create reservation')
       }
@@ -366,27 +369,13 @@ export default function ReservasiPage() {
   const selectedTimeSlot = timeSlots.find((t) => t.id === reservationData.timeSlot)
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-background text-foreground overflow-x-hidden">
-      <SiteHeader />
+    <div className="relative min-h-screen text-foreground overflow-x-hidden flex flex-col">
+      <SirediPageBackground />
 
-      <section className="py-8 sm:py-12 bg-gradient-to-r from-blue-600 to-blue-700 text-white relative overflow-hidden">
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-10 left-10 w-20 h-20 bg-blue-400 rounded-full animate-float-strong blur-sm"></div>
-          <div className="absolute bottom-10 right-20 w-16 h-16 bg-blue-500 rounded-full animate-float-delayed-strong blur-sm"></div>
-          <div className="absolute top-1/2 right-10 w-12 h-12 bg-blue-300 rounded-full animate-float-strong blur-sm"></div>
-        </div>
+      <div className="relative z-10 flex flex-col flex-1">
+        <SiteHeader hideUserMenu inlineAuth loginRedirect="/reservasi" showBrandLogo />
 
-        <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
-          <ScrollReveal animation="fade-up" delay={0}>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">Sistem Reservasi Online</h1>
-            <p className="text-blue-100 text-base sm:text-lg">
-              Dinas Pendidikan Kota Banjarmasin - Mudah, Cepat, dan Terpercaya
-            </p>
-          </ScrollReveal>
-        </div>
-      </section>
-
-      <div className="max-w-4xl mx-auto px-4 py-6 sm:py-8 relative">
+        <div className="max-w-4xl mx-auto px-4 py-5 sm:py-8">
         {/* Status Banner - Informasi jam operasional */}
         {reservationStatus && (
           <ScrollReveal animation="fade-up" delay={100}>
@@ -399,7 +388,7 @@ export default function ReservasiPage() {
                 <span className="text-sm sm:text-base font-medium">
                   {reservationStatus.isOpen ? '✅' : 'ℹ️'} {reservationStatus.message}
                 </span>
-                {!reservationStatus.isOpen && (
+                {!reservationStatus.isOpen && reservationStatus.mode === "auto" && (
                   <div className="text-xs mt-2 opacity-90">
                     Anda tetap dapat melakukan reservasi untuk hari-hari berikutnya
                   </div>
@@ -409,30 +398,13 @@ export default function ReservasiPage() {
           </ScrollReveal>
         )}
 
-        <ScrollReveal animation="fade-up" delay={100}>
-          <div className="flex items-center justify-center mb-6 sm:mb-8 overflow-x-auto pb-2">
-            {[1, 2, 3, 4].map((stepNum) => (
-              <div key={stepNum} className="flex items-center flex-shrink-0">
-                <div
-                  className={cn(
-                    "w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium transition-all duration-300",
-                    step >= stepNum ? "bg-blue-600 text-white shadow-lg" : "bg-gray-200 text-gray-500",
-                  )}
-                >
-                  {stepNum}
-                </div>
-                {stepNum < 4 && (
-                  <div
-                    className={cn(
-                      "w-12 sm:w-16 h-1 mx-1 sm:mx-2 transition-all duration-300",
-                      step > stepNum ? "bg-blue-600" : "bg-gray-200",
-                    )}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-        </ScrollReveal>
+        {step <= RESERVATION_TOTAL_STEPS && (
+          <ScrollReveal animation="fade-up" delay={100}>
+            <div className="mb-6 sm:mb-8 rounded-2xl border border-white/20 bg-white/10 backdrop-blur-md px-4 py-5 sm:px-6 sm:py-6">
+              <ReservationStepIndicator currentStep={step} />
+            </div>
+          </ScrollReveal>
+        )}
 
         {/* Step 1: Service Selection */}
         {step === 1 && (
@@ -451,6 +423,10 @@ export default function ReservasiPage() {
                   <div className="flex justify-center py-8">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                   </div>
+                ) : services.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-8">
+                    Belum ada layanan tersedia. Muat ulang halaman atau hubungi admin.
+                  </p>
                 ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                   {services.map((service) => {
@@ -485,13 +461,13 @@ export default function ReservasiPage() {
           </ScrollReveal>
         )}
 
-        {/* Step 2: Date and Time Selection */}
+        {/* Step 2: Date Selection */}
         {step === 2 && (
           <ScrollReveal animation="fade-up" delay={200}>
             <Card className="shadow-lg border-0 bg-white dark:bg-card">
               <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950/40 dark:to-blue-900/40 p-4 sm:p-6">
                 <CardTitle className="text-center text-xl sm:text-2xl text-blue-700 dark:text-blue-300">
-                  Pilih Tanggal & Waktu
+                  Pilih Tanggal
                 </CardTitle>
                 <p className="text-center text-sm sm:text-base text-muted-foreground">
                   Layanan:{" "}
@@ -499,11 +475,9 @@ export default function ReservasiPage() {
                 </p>
               </CardHeader>
               <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-8 bg-card dark:bg-card">
-                {/* Date Selection */}
                 <div className="relative">
-                  <Label className="text-sm sm:text-base font-medium text-foreground">Pilih Tanggal</Label>
-                  
-                  {/* Desktop Calendar - Using Dialog as fallback */}
+                  <Label className="text-sm sm:text-base font-medium text-foreground">Pilih Tanggal Kunjungan</Label>
+
                   <div className="hidden sm:block relative">
                     <Dialog open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                       <DialogTrigger asChild>
@@ -526,13 +500,9 @@ export default function ReservasiPage() {
                           <SimpleCalendar
                             selected={selectedDate}
                             onSelect={(date) => {
-                              console.log("Date selected:", date)
                               setSelectedDate(date)
                               setReservationData({ ...reservationData, date: date, timeSlot: "" })
                               setIsCalendarOpen(false)
-                              if (date) {
-                                loadTimeSlots(date)
-                              }
                             }}
                             disabled={(date) => {
                               const today = new Date()
@@ -547,17 +517,12 @@ export default function ReservasiPage() {
                     </Dialog>
                   </div>
 
-                  {/* Mobile Calendar */}
                   <div className="sm:hidden">
                     <SimpleCalendar
                       selected={selectedDate}
                       onSelect={(date) => {
-                        console.log("Mobile date selected:", date)
                         setSelectedDate(date)
                         setReservationData({ ...reservationData, date: date, timeSlot: "" })
-                        if (date) {
-                          loadTimeSlots(date)
-                        }
                       }}
                       disabled={(date) => {
                         const today = new Date()
@@ -584,70 +549,6 @@ export default function ReservasiPage() {
                   )}
                 </div>
 
-                {selectedDate && (
-                  <div>
-                    <Label className="text-sm sm:text-base font-medium text-foreground">Pilih Waktu</Label>
-                    {isLoadingTimeSlots ? (
-                      <div className="flex items-center justify-center py-8">
-                        <div className="text-muted-foreground">Memuat slot waktu...</div>
-                      </div>
-                    ) : timeSlots.length === 0 ? (
-                      <div className="flex items-center justify-center py-8">
-                        <div className="text-center">
-                          <Clock className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-                          <div className="text-muted-foreground font-medium">Layanan tidak tersedia</div>
-                          <div className="text-sm text-muted-foreground mt-1">
-                            {selectedDate && selectedDate.getDay() === 0 && "Hari Minggu"}
-                            {selectedDate && selectedDate.getDay() === 6 && "Hari Sabtu"}
-                            {selectedDate && (selectedDate.getDay() !== 0 && selectedDate.getDay() !== 6) && "Tidak ada slot waktu tersedia"}
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-2">
-                        {timeSlots.map((slot) => {
-                        const isAvailable = slot.booked < slot.capacity
-                        const isSelected = reservationData.timeSlot === slot.id
-                        const isPassed = selectedDate ? isTimeSlotPassed(selectedDate, slot.id) : false
-                        const isDisabled = !isAvailable || isPassed
-
-                        return (
-                          <Button
-                            key={slot.id}
-                            variant={isSelected ? "default" : "outline"}
-                            disabled={isDisabled}
-                            className={cn(
-                              "h-auto p-3 sm:p-4 flex flex-col items-center transition-all duration-300 touch-manipulation",
-                              isSelected && "bg-blue-600 hover:bg-blue-700 shadow-lg text-white",
-                              isDisabled && "opacity-50 cursor-not-allowed",
-                              isAvailable &&
-                                !isSelected &&
-                                !isPassed &&
-                                "hover:border-blue-400 hover:shadow-md bg-background dark:bg-background border-input dark:border-input text-foreground",
-                            )}
-                            onClick={() => {
-                              if (!isDisabled) {
-                                setReservationData({ ...reservationData, timeSlot: slot.id })
-                              }
-                            }}
-                            title={isPassed ? "Slot waktu ini sudah lewat" : !isAvailable ? "Slot sudah dipesan" : undefined}
-                          >
-                            <Clock className="w-4 h-4 mb-1" />
-                            <span className="text-xs sm:text-sm font-medium">{slot.time}</span>
-                            {isPassed && (
-                              <span className="text-xs text-red-600 dark:text-red-400 mt-1">Sudah lewat</span>
-                            )}
-                            {!isPassed && !isAvailable && (
-                              <span className="text-xs text-red-600 dark:text-red-400 mt-1 font-semibold">Penuh</span>
-                            )}
-                          </Button>
-                        )
-                      })}
-                      </div>
-                    )}
-                  </div>
-                )}
-
                 <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4">
                   <Button
                     variant="outline"
@@ -657,8 +558,8 @@ export default function ReservasiPage() {
                     Kembali
                   </Button>
                   <Button
-                    onClick={handleDateTimeSelect}
-                    disabled={!selectedDate || !reservationData.timeSlot}
+                    onClick={handleDateContinue}
+                    disabled={!selectedDate}
                     className="w-full sm:flex-1 h-10 sm:h-12 bg-blue-600 hover:bg-blue-700 touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Lanjutkan
@@ -669,8 +570,89 @@ export default function ReservasiPage() {
           </ScrollReveal>
         )}
 
-        {/* Step 3: Personal Information */}
+        {/* Step 3: Time Slot Selection */}
         {step === 3 && (
+          <ScrollReveal animation="fade-up" delay={200}>
+            <Card className="shadow-lg border-0 bg-white dark:bg-card">
+              <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950/40 dark:to-blue-900/40 p-4 sm:p-6">
+                <CardTitle className="text-center text-xl sm:text-2xl text-blue-700 dark:text-blue-300">
+                  Pilih Slot Waktu
+                </CardTitle>
+                <p className="text-center text-sm sm:text-base text-muted-foreground">
+                  {selectedService?.name}
+                  {selectedDate && (
+                    <>
+                      {" "}
+                      ·{" "}
+                      <span className="font-semibold text-blue-600 dark:text-blue-400">
+                        {format(selectedDate, "EEEE, d MMMM yyyy", { locale: id })}
+                      </span>
+                    </>
+                  )}
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-8 bg-card dark:bg-card">
+                <div>
+                  <Label className="text-sm sm:text-base font-medium text-foreground">Pilih Waktu</Label>
+                  <p className="text-xs text-muted-foreground mt-1 mb-2">
+                    Pilih kolom sesuai kebutuhan: pertemuan singkat (10–15 menit) atau standar (15–25 menit).
+                    Sisa kuota per slot diperbarui otomatis. Slot penuh atau waktu yang sudah lewat (WITA) tidak
+                    dapat dipilih.
+                  </p>
+                  {isLoadingTimeSlots ? (
+                    <div className="flex items-center justify-center py-8">
+                      <div className="text-muted-foreground">Memuat slot waktu...</div>
+                    </div>
+                  ) : timeSlots.length === 0 ? (
+                    <div className="flex items-center justify-center py-8">
+                      <div className="text-center">
+                        <Clock className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                        <div className="text-muted-foreground font-medium">Layanan tidak tersedia</div>
+                        <div className="text-sm text-muted-foreground mt-1">
+                          {selectedDate && selectedDate.getDay() === 0 && "Hari Minggu"}
+                          {selectedDate && selectedDate.getDay() === 6 && "Hari Sabtu"}
+                          {selectedDate &&
+                            selectedDate.getDay() !== 0 &&
+                            selectedDate.getDay() !== 6 &&
+                            "Tidak ada slot waktu tersedia"}
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <TimeSlotColumns
+                      slots={timeSlots}
+                      selectedSlotId={reservationData.timeSlot}
+                      selectedDate={selectedDate}
+                      onSelect={(slotId) =>
+                        setReservationData({ ...reservationData, timeSlot: slotId })
+                      }
+                    />
+                  )}
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4">
+                  <Button
+                    variant="outline"
+                    onClick={() => setStep(2)}
+                    className="w-full sm:flex-1 h-10 sm:h-12 bg-transparent touch-manipulation"
+                  >
+                    Kembali
+                  </Button>
+                  <Button
+                    onClick={handleTimeContinue}
+                    disabled={!reservationData.timeSlot}
+                    className="w-full sm:flex-1 h-10 sm:h-12 bg-blue-600 hover:bg-blue-700 touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Lanjutkan
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </ScrollReveal>
+        )}
+
+        {/* Step 4: Personal Information */}
+        {step === 4 && (
           <ScrollReveal animation="fade-up" delay={200}>
             <Card className="shadow-lg border-0 bg-white dark:bg-card">
               <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950/40 dark:to-blue-900/40 p-4 sm:p-6">
@@ -756,6 +738,12 @@ export default function ReservasiPage() {
                       </p>
                       <p>
                         <span className="font-medium">Waktu:</span> {selectedTimeSlot?.time}
+                        {selectedTimeSlot?.durationLabel && (
+                          <span className="text-muted-foreground">
+                            {" "}
+                            ({selectedTimeSlot.durationLabel})
+                          </span>
+                        )}
                       </p>
                     </div>
                   </div>
@@ -764,7 +752,7 @@ export default function ReservasiPage() {
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={() => setStep(2)}
+                      onClick={() => setStep(3)}
                       className="w-full sm:flex-1 h-10 sm:h-12 bg-transparent touch-manipulation"
                     >
                       Kembali
@@ -782,105 +770,42 @@ export default function ReservasiPage() {
           </ScrollReveal>
         )}
 
-        {/* Step 4: Ticket Display with Print Option */}
-        {step === 4 && (
+        {/* Step 5: Ticket Display with Print Option */}
+        {step === 5 && (
           <ScrollReveal animation="fade-up" delay={200}>
-            <Card className="shadow-lg border-0 bg-white dark:bg-card">
-              <CardHeader className="bg-gradient-to-r from-green-50 to-green-100 dark:from-green-950/40 dark:to-green-900/40 print:hidden p-4 sm:p-6">
-                <CardTitle className="text-center text-xl sm:text-2xl text-green-600 dark:text-green-400">
-                  Tiket Reservasi Anda
-                </CardTitle>
-                <p className="text-center text-sm sm:text-base text-muted-foreground">
-                  Simpan atau cetak tiket ini sebagai bukti reservasi
-                </p>
-              </CardHeader>
-              <CardContent className="p-4 sm:p-8 bg-white dark:bg-card">
-                <div className="bg-white dark:bg-gray-900 border-2 border-dashed border-gray-300 dark:border-gray-600 p-4 sm:p-8 rounded-lg print:border-black print:shadow-none shadow-inner mb-4 sm:mb-6">
-                  <div className="text-center space-y-3 sm:space-y-4">
-                    <div className="text-xs sm:text-sm text-muted-foreground font-medium print:text-black">
-                      DINAS PENDIDIKAN KOTA BANJARMASIN
-                    </div>
-                    <div className="text-base sm:text-lg font-semibold text-blue-600 dark:text-blue-400 print:text-black">
-                      TIKET RESERVASI ONLINE
-                    </div>
+            <div className="space-y-6">
+              <ReservationTicketCard
+                queueNumber={queueNumber}
+                serviceName={selectedService?.name}
+                date={reservationData.date}
+                time={selectedTimeSlot?.time}
+                name={reservationData.name}
+              />
 
-                    <div className="border-t border-b border-gray-200 dark:border-gray-700 py-4 sm:py-6 print:border-black">
-                      <div className="text-3xl sm:text-5xl font-bold text-blue-600 mb-2 sm:mb-3 print:text-black break-all">
-                        {queueNumber}
-                      </div>
-                      <div className="text-base sm:text-xl font-medium text-blue-700 dark:text-blue-300 print:text-black">
-                        {selectedService?.name}
-                      </div>
-                    </div>
-
-                    <div className="space-y-2 sm:space-y-3 text-xs sm:text-sm">
-                      <div className="flex justify-between py-1 sm:py-2 border-b border-gray-100 dark:border-gray-800 print:border-black">
-                        <span className="font-medium print:text-black">Nama:</span>
-                        <span className="print:text-black text-right break-words max-w-[60%]">
-                          {reservationData.name}
-                        </span>
-                      </div>
-                      <div className="flex justify-between py-1 sm:py-2 border-b border-gray-100 dark:border-gray-800 print:border-black">
-                        <span className="font-medium print:text-black">Tanggal:</span>
-                        <span className="print:text-black text-right">
-                          {reservationData.date && format(reservationData.date, "PPP", { locale: id })}
-                        </span>
-                      </div>
-                      <div className="flex justify-between py-1 sm:py-2 border-b border-gray-100 dark:border-gray-800 print:border-black">
-                        <span className="font-medium print:text-black">Waktu:</span>
-                        <span className="print:text-black text-right">{selectedTimeSlot?.time}</span>
-                      </div>
-                      <div className="flex justify-between py-1 sm:py-2 border-b border-gray-100 dark:border-gray-800 print:border-black">
-                        <span className="font-medium print:text-black">Est. Panggilan:</span>
-                        <span className="font-bold text-blue-600 print:text-black text-right">{estimatedTime}</span>
-                      </div>
-                      <div className="flex justify-between py-1 sm:py-2">
-                        <span className="font-medium print:text-black">No. HP:</span>
-                        <span className="print:text-black text-right">{reservationData.phone}</span>
-                      </div>
-                      <div className="flex justify-between py-1 sm:py-2">
-                        <span className="font-medium print:text-black">Tujuan:</span>
-                        <span className="print:text-black text-right break-words max-w-[60%]">{reservationData.purpose}</span>
-                      </div>
-                    </div>
-
-                    <div className="text-xs text-muted-foreground border-t pt-3 sm:pt-4 space-y-1 print:text-black">
-                      <p className="font-medium text-blue-700 dark:text-blue-300 mb-2">
-                        <strong>Penting:</strong> Simpan atau cetak tiket ini sebagai bukti reservasi Anda.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 print:hidden">
-                  <Button
-                    onClick={handlePrint}
-                    disabled={isGeneratingPDF}
-                    className="w-full sm:flex-1 h-10 sm:h-12 bg-green-600 hover:bg-green-700 touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed"
-                    size="lg"
-                  >
-                    <Printer className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                    {isGeneratingPDF ? "Membuat PDF..." : "Unduh Tiket"}
-                  </Button>
-                  <Button
-                    onClick={resetForm}
-                    variant="outline"
-                    className="w-full sm:flex-1 h-10 sm:h-12 border-blue-200 hover:border-blue-400 bg-transparent touch-manipulation"
-                    size="lg"
-                  >
-                    Buat Reservasi Baru
-                  </Button>
-                </div>
-
-                <div className="text-xs sm:text-sm text-muted-foreground print:hidden bg-blue-50 dark:bg-blue-950/20 p-3 sm:p-4 rounded-lg mt-3 sm:mt-4 border border-blue-200/50 dark:border-blue-800/50">
-                  <p className="font-medium text-blue-700 dark:text-blue-300 mb-2">
-                    <strong>Penting:</strong> Simpan atau cetak tiket ini sebagai bukti reservasi Anda.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 max-w-lg mx-auto print:hidden">
+                <Button
+                  onClick={handlePrint}
+                  disabled={isGeneratingPDF}
+                  variant="outline"
+                  className="w-full sm:flex-1 h-11 sm:h-12 border-[#93c5fd] text-[#2563eb] hover:bg-[#eff6ff] touch-manipulation disabled:opacity-50"
+                  size="lg"
+                >
+                  <Printer className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                  {isGeneratingPDF ? "Membuat PDF..." : "Unduh Tiket"}
+                </Button>
+                <Button
+                  onClick={resetForm}
+                  className="w-full sm:flex-1 h-11 sm:h-12 bg-[#2563eb] hover:bg-[#1d4ed8] touch-manipulation"
+                  size="lg"
+                >
+                  Buat Baru
+                </Button>
+              </div>
+            </div>
           </ScrollReveal>
         )}
+        </div>
+        <PublicSiteFooter />
       </div>
     </div>
   )

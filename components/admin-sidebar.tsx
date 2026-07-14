@@ -1,9 +1,11 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { School, Home, Newspaper, Calendar, LogOut, X } from "lucide-react"
+import { School, LogOut, X } from "lucide-react"
 import { useRouter, usePathname } from "next/navigation"
 import { useState } from "react"
+import { buildAdminNavigation } from "@/lib/admin-navigation"
+import { AdminModeSwitch } from "@/components/admin-mode-switch"
 
 interface AdminSidebarProps {
   sidebarCollapsed: boolean
@@ -15,6 +17,7 @@ export function AdminSidebar({ sidebarCollapsed, mobileMenuOpen, setMobileMenuOp
   const router = useRouter()
   const pathname = usePathname()
   const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const navigationItems = buildAdminNavigation(pathname ?? "")
 
   const handleLogout = async () => {
     try {
@@ -35,14 +38,6 @@ export function AdminSidebar({ sidebarCollapsed, mobileMenuOpen, setMobileMenuOp
       setIsLoggingOut(false)
     }
   }
-
-  const navigationItems = [
-    { icon: Home, label: "Dashboard", href: "/admin/dashboard" },
-    { icon: School, label: "Manajemen Sekolah", href: "/admin/sekolah" },
-    { icon: Newspaper, label: "Manajemen Berita", href: "/admin/berita" },
-    { icon: Calendar, label: "Manajemen Agenda", href: "/admin/agenda" },
-    { icon: Calendar, label: "Laporan Reservasi", href: "/admin/reservasi" },
-  ]
 
   return (
     <>
@@ -68,22 +63,19 @@ export function AdminSidebar({ sidebarCollapsed, mobileMenuOpen, setMobileMenuOp
           </Button>
         </div>
 
-        {/* Logo */}
         <div className="p-4 border-b border-sidebar-border">
           <div className={`flex items-center ${sidebarCollapsed ? 'justify-center' : 'space-x-3'}`}>
             <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
               <School className="w-6 h-6 text-white" />
             </div>
-            {!sidebarCollapsed && <span className="text-xl font-bold">SIMDIK Admin</span>}
+            {!sidebarCollapsed && <span className="text-xl font-bold">SIREDI Admin</span>}
           </div>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 p-4">
+        <nav className="flex-1 p-4 overflow-y-auto">
           <ul className="space-y-2">
             {navigationItems.map((item, index) => {
               const Icon = item.icon
-              const isActive = pathname === item.href
               return (
                 <li key={index}>
                   <button
@@ -91,8 +83,10 @@ export function AdminSidebar({ sidebarCollapsed, mobileMenuOpen, setMobileMenuOp
                       router.push(item.href)
                       setMobileMenuOpen(false)
                     }}
-                    className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center' : 'space-x-3'} p-3 rounded-lg transition-all duration-200 hover:scale-105 ${
-                      isActive
+                    className={`w-full flex items-center p-3 rounded-lg transition-all duration-200 hover:scale-105 ${
+                      sidebarCollapsed ? 'justify-center' : 'space-x-3'
+                    } ${
+                      item.active
                         ? "bg-blue-600 text-white shadow-lg"
                         : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-md"
                     }`}
@@ -107,8 +101,8 @@ export function AdminSidebar({ sidebarCollapsed, mobileMenuOpen, setMobileMenuOp
           </ul>
         </nav>
 
-        {/* Logout Button */}
-        <div className="p-4 border-t border-sidebar-border">
+        <div className="p-4 border-t border-sidebar-border space-y-3">
+          <AdminModeSwitch collapsed={sidebarCollapsed} />
           <Button
             variant="ghost"
             onClick={handleLogout}

@@ -2,7 +2,6 @@
 
 // Dashboard Admin with real-time data from database
 import { useState, useEffect } from "react"
-import dynamic from "next/dynamic"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -18,49 +17,41 @@ import {
   LogOut,
   ChevronDown,
   Home,
-  Newspaper,
   Calendar,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { buildAdminNavigation } from "@/lib/admin-navigation"
+import { AdminModeSwitch } from "@/components/admin-mode-switch"
 
 import { ThemeToggle } from "@/components/theme-toggle"
-import { 
-  Chart as ChartJS, 
-  CategoryScale, 
-  LinearScale, 
-  BarElement, 
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
   PointElement,
   LineElement,
   ArcElement,
-  Title, 
-  Tooltip, 
+  Title,
+  Tooltip,
+  Legend,
+  Filler,
+} from "chart.js"
+import { Bar, Line } from "react-chartjs-2"
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  PointElement,
+  LineElement,
+  ArcElement,
+  Title,
+  Tooltip,
   Legend,
   Filler
-} from 'chart.js'
-
-// ⚡ Lazy load Chart.js - hanya dimuat saat dashboard dibuka
-const Bar = dynamic(() => import('react-chartjs-2').then(mod => mod.Bar), { ssr: false })
-const Line = dynamic(() => import('react-chartjs-2').then(mod => mod.Line), { ssr: false })
-const Doughnut = dynamic(() => import('react-chartjs-2').then(mod => mod.Doughnut), { ssr: false })
-
-// Register ChartJS components dinamis
-if (typeof window !== 'undefined') {
-  import('chart.js').then((ChartJS) => {
-    ChartJS.Chart.register(
-      ChartJS.CategoryScale,
-      ChartJS.LinearScale,
-      ChartJS.BarElement,
-      ChartJS.PointElement,
-      ChartJS.LineElement,
-      ChartJS.ArcElement,
-      ChartJS.Title,
-      ChartJS.Tooltip,
-      ChartJS.Legend,
-      ChartJS.Filler
-    )
-  })
-}
+)
 
 export default function AdminDashboard() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -482,13 +473,7 @@ export default function AdminDashboard() {
     }
   }
 
-  const navigationItems = [
-    { icon: Home, label: "Dashboard", href: "/admin/dashboard", active: true },
-    { icon: School, label: "Manajemen Sekolah", href: "/admin/sekolah", active: false },
-    { icon: Newspaper, label: "Manajemen Berita", href: "/admin/berita", active: false },
-    { icon: Calendar, label: "Manajemen Agenda", href: "/admin/agenda", active: false },
-    { icon: Calendar, label: "Laporan Reservasi", href: "/admin/reservasi", active: false },
-  ]
+  const navigationItems = buildAdminNavigation("/admin/dashboard")
 
   const statsData = [
     {
@@ -640,8 +625,8 @@ export default function AdminDashboard() {
           </ul>
         </nav>
 
-        {/* Logout Button */}
-        <div className="p-4 border-t border-sidebar-border">
+        <div className="p-4 border-t border-sidebar-border space-y-3">
+          <AdminModeSwitch collapsed={sidebarCollapsed} />
           <Button
             variant="ghost"
             onClick={handleLogout}

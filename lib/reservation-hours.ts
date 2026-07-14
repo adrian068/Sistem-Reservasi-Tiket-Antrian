@@ -2,56 +2,78 @@
  * Utility functions untuk mengecek status buka/tutup reservasi berdasarkan waktu real-time
  */
 
+import { isTimeSlotInOperatingHours, parseSlotStartTime } from "@/lib/time-slots"
+
 export interface ReservationStatus {
   isOpen: boolean
   message: string
   nextOpenTime?: string
 }
 
+export const RESERVATION_TIMEZONE = "Asia/Makassar"
+
 /**
  * Mendapatkan waktu lokal Indonesia Tengah (WITA - UTC+8)
  * Menggunakan timezone Asia/Makassar untuk akurasi
- * Untuk client-side: menggunakan waktu browser (real-time)
- * Untuk server-side: menggunakan timezone Asia/Makassar
  */
-function getLocalTimeIndonesia(): {
+export function getLocalTimeIndonesia(): {
   day: number
   hour: number
   minute: number
   date: Date
+  ymd: string
 } {
   const now = new Date()
-  
-  // Dapatkan komponen waktu dalam timezone Asia/Makassar (WITA - UTC+8)
-  const formatter = new Intl.DateTimeFormat('en-US', {
-    timeZone: 'Asia/Makassar',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    weekday: 'long',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false
+
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: RESERVATION_TIMEZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    weekday: "long",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
   })
-  
+
   const parts = formatter.formatToParts(now)
-  const hour = parseInt(parts.find(p => p.type === 'hour')?.value || '0')
-  const minute = parseInt(parts.find(p => p.type === 'minute')?.value || '0')
-  const day = parseInt(parts.find(p => p.type === 'day')?.value || '0')
-  const month = parseInt(parts.find(p => p.type === 'month')?.value || '0')
-  const year = parseInt(parts.find(p => p.type === 'year')?.value || '0')
-  
-  // Buat Date object untuk mendapatkan day of week (0 = Minggu, 1 = Senin, dll)
-  const date = new Date(year, month - 1, day, hour, minute)
-  const dayOfWeek = date.getDay()
-  
+  const hour = parseInt(parts.find((p) => p.type === "hour")?.value || "0", 10)
+  const minute = parseInt(parts.find((p) => p.type === "minute")?.value || "0", 10)
+  const dayNum = parseInt(parts.find((p) => p.type === "day")?.value || "0", 10)
+  const month = parseInt(parts.find((p) => p.type === "month")?.value || "0", 10)
+  const year = parseInt(parts.find((p) => p.type === "year")?.value || "0", 10)
+
+  const date = new Date(year, month - 1, dayNum, hour, minute)
+  const day = date.getDay()
+  const ymd = `${year}-${String(month).padStart(2, "0")}-${String(dayNum).padStart(2, "0")}`
+
   return {
-    day: dayOfWeek,
+    day,
     hour,
     minute,
-    date
+    date,
+    ymd,
   }
+}
+
+/** Menit sejak 00:00 WITA */
+export function getWitaNowMinutes(): number {
+  const t = getLocalTimeIndonesia()
+  return t.hour * 60 + t.minute
+}
+
+/** YYYY-MM-DD hari ini menurut WITA */
+export function getWitaTodayYmd(): string {
+  return getLocalTimeIndonesia().ymd
+}
+
+/** Bandingkan tanggal kalender (Date picker) dengan hari ini WITA */
+export function isSameCalendarDayAsWitaToday(selectedDate: Date): boolean {
+  const y = selectedDate.getFullYear()
+  const m = String(selectedDate.getMonth() + 1).padStart(2, "0")
+  const d = String(selectedDate.getDate()).padStart(2, "0")
+  return `${y}-${m}-${d}` === getWitaTodayYmd()
 }
 
 /**
@@ -168,22 +190,7 @@ export function checkReservationStatus(): ReservationStatus {
  * Mengecek apakah waktu tertentu valid untuk reservasi
  */
 export function isValidReservationTime(date: Date, timeSlot: string): boolean {
-  const dayOfWeek = date.getDay()
-  
-  // Sabtu dan Minggu tidak valid
-  if (dayOfWeek === 0 || dayOfWeek === 6) {
-    return false
-  }
-  
-  // Jumat hanya 08:00 - 10:00
-  if (dayOfWeek === 5) {
-    const slotHour = parseInt(timeSlot.split(':')[0])
-    return slotHour >= 8 && slotHour < 10
-  }
-  
-  // Senin-Kamis: 08:00 - 12:00 dan 14:00 - 16:00
-  const slotHour = parseInt(timeSlot.split(':')[0])
-  return (slotHour >= 8 && slotHour < 12) || (slotHour >= 14 && slotHour < 16)
+  return isTimeSlotInOperatingHours(date.getDay(), timeSlot)
 }
 
 /**
@@ -201,44 +208,44 @@ export function isValidReservationTime(date: Date, timeSlot: string): boolean {
  * @returns true jika slot waktu sudah lewat dan tidak bisa booking untuk hari ini
  */
 export function isTimeSlotPassed(selectedDate: Date, timeSlot: string): boolean {
-  // Gunakan waktu lokal Indonesia Tengah (WITA - UTC+8)
-  const localTime = getLocalTimeIndonesia()
-  const now = localTime.date
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  const selected = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate())
-  
-  // Jika bukan hari yang sama, slot belum lewat
-  if (today.getTime() !== selected.getTime()) {
+  if (!isSameCalendarDayAsWitaToday(selectedDate)) {
     return false
   }
-  
-  // Cek apakah masih dalam jam operasional
+
+  const localTime = getLocalTimeIndonesia()
   const currentDay = localTime.day
   const currentTime = localTime.hour * 60 + localTime.minute
-  
-  // Tentukan jam tutup berdasarkan hari
+
   let closeTime: number
-  if (currentDay === 5) { // Jumat
-    closeTime = 10 * 60 // 10:00
-  } else if (currentDay >= 1 && currentDay <= 4) { // Senin-Kamis
-    closeTime = 16 * 60 // 16:00
-  } else { // Sabtu-Minggu (tidak operasional)
-    return true // Sabtu-Minggu dianggap sudah lewat
+  if (currentDay === 5) {
+    closeTime = 10 * 60
+  } else if (currentDay >= 1 && currentDay <= 4) {
+    closeTime = 16 * 60
+  } else {
+    return true
   }
-  
-  // PERUBAHAN UTAMA:
-  // Jika sudah lewat jam tutup, TIDAK BISA booking untuk hari ini
-  // Harus pilih tanggal besok atau selanjutnya
+
   if (currentTime >= closeTime) {
-    return true // Slot dianggap sudah lewat, harus pilih besok
+    return true
   }
-  
-  // Jika masih dalam jam operasional, cek apakah slot sudah lewat
-  const [slotHour, slotMinute] = timeSlot.split(':').map(Number)
-  // Slot dianggap lewat jika waktu saat ini sudah melewati waktu AWAL slot
-  const slotStartTime = slotHour * 60 + slotMinute
-  
-  // Slot dianggap lewat jika waktu saat ini >= waktu awal slot
+
+  const start = parseSlotStartTime(timeSlot)
+  const [slotHour, slotMinute] = start.split(":").map(Number)
+  const slotStartTime = slotHour * 60 + (slotMinute || 0)
+
   return currentTime >= slotStartTime
+}
+
+export function getSlotRemaining(slot: { capacity: number; booked: number }): number {
+  return Math.max(0, slot.capacity - slot.booked)
+}
+
+export function isSlotSelectable(
+  slot: { id: string; capacity: number; booked: number },
+  selectedDate?: Date,
+): boolean {
+  if (getSlotRemaining(slot) <= 0) return false
+  if (selectedDate && isTimeSlotPassed(selectedDate, slot.id)) return false
+  return true
 }
 

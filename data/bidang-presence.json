@@ -1,0 +1,145 @@
+{
+  "bidangs": [
+    {
+      "slug": "paud",
+      "nama": "PAUD",
+      "updatedAt": "2026-06-03T10:30:00.000Z",
+      "petugas": [
+        {
+          "id": "paud-1",
+          "nama": "Kepala Seksi PAUD",
+          "jabatan": "Kasi PAUD",
+          "hadir": false,
+          "diRuangan": false,
+          "updatedAt": "2026-06-03T10:30:00.000Z"
+        },
+        {
+          "id": "paud-2",
+          "nama": "Analis PAUD I",
+          "jabatan": "Staff Kurikulum",
+          "hadir": false,
+          "diRuangan": false,
+          "updatedAt": "2026-06-03T10:30:00.000Z"
+        },
+        {
+          "id": "paud-3",
+          "nama": "Analis PAUD II",
+          "jabatan": "Staff Sarpras",
+          "hadir": false,
+          "diRuangan": false,
+          "updatedAt": "2026-06-03T10:30:00.000Z"
+        },
+        {
+          "id": "paud-4",
+          "nama": "Penata Layanan Operasional",
+          "jabatan": "Staff Administrasi",
+          "hadir": false,
+          "diRuangan": false,
+          "updatedAt": "2026-06-03T10:30:00.000Z"
+        },
+        {
+          "id": "paud-5",
+          "nama": "Pranata Humas",
+          "jabatan": "Staff Humas & Data",
+          "hadir": false,
+          "diRuangan": false,
+          "updatedAt": "2026-06-03T10:30:00.000Z"
+        }
+      ]
+    },
+    {
+      "slug": "ptk",
+      "nama": "PTK",
+      "updatedAt": "2026-07-06T15:48:33.731Z",
+      "petugas": [
+        {
+          "id": "ptk-1",
+          "nama": "Kepala Seksi PTK",
+          "jabatan": "Kasi PTK",
+          "hadir": false,
+          "diRuangan": false,
+          "updatedAt": "2026-07-06T15:48:33.731Z"
+        },
+        {
+          "id": "ptk-2",
+          "nama": "Analis PTK I",
+          "jabatan": "Staff Kurikulum",
+          "hadir": false,
+          "diRuangan": false,
+          "updatedAt": "2026-07-06T15:48:33.731Z"
+        },
+        {
+          "id": "ptk-3",
+          "nama": "Analis PTK II",
+          "jabatan": "Staff Sarpras",
+          "hadir": false,
+          "diRuangan": false,
+          "updatedAt": "2026-07-06T15:48:33.731Z"
+        },
+        {
+          "id": "ptk-4",
+          "nama": "Penata Layanan Operasional",
+          "jabatan": "Staff Administrasi",
+          "hadir": false,
+          "diRuangan": false,
+          "updatedAt": "2026-07-06T15:48:33.731Z"
+        },
+        {
+          "id": "ptk-5",
+          "nama": "Pranata Humas",
+          "jabatan": "Staff Humas & Data",
+          "hadir": false,
+          "diRuangan": false,
+          "updatedAt": "2026-07-06T15:48:33.731Z"
+        }
+      ]
+    },
+    {
+      "slug": "sd-umum",
+      "nama": "SD Umum",
+      "updatedAt": "2026-07-06T15:50:07.545Z",
+      "petugas": [
+        {
+          "id": "sd-umum-1",
+          "nama": "Kepala Seksi SD",
+          "jabatan": "Kasi SD",
+          "hadir": false,
+          "diRuangan": false,
+          "updatedAt": "2026-07-06T15:50:07.545Z"
+        },
+        {
+          "id": "sd-umum-2",
+          "nama": "Analis SD I",
+          "jabatan": "Staff Kurikulum",
+          "hadir": false,
+          "diRuangan": false,
+          "updatedAt": "2026-07-06T15:50:07.545Z"
+        },
+        {
+          "id": "sd-umum-3",
+          "nama": "Analis SD II",
+          "jabatan": "Staff Sarpras",
+          "hadir": false,
+          "diRuangan": false,
+          "updatedAt": "2026-07-06T15:50:07.545Z"
+        },
+        {
+          "id": "sd-umum-4",
+          "nama": "Penata Layanan Operasional",
+          "jabatan": "Staff Administrasi",
+          "hadir": false,
+          "diRuangan": false,
+          "updatedAt": "2026-07-06T15:50:07.545Z"
+        },
+        {
+          "id": "sd-umum-5",
+          "nama": "Pranata Humas",
+          "jabatan": "Staff Humas & Data",
+          "hadir": false,
+          "diRuangan": false,
+          "updatedAt": "2026-07-06T15:50:07.545Z"
+        }
+      ]
+    }
+  ]
+}

@@ -21,13 +21,11 @@ import {
   LogOut,
   ChevronDown,
   Home,
-  Newspaper,
   Calendar,
   XCircle,
   Phone,
   User,
   Calendar as CalendarIcon,
-  Edit,
   Trash2,
   Save,
   Search,
@@ -40,6 +38,11 @@ import {
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { ReservationTimeSettings } from "@/components/admin/reservation-time-settings"
+import { BidangPresencePanel } from "@/components/admin/bidang-presence-panel"
+import { buildAdminNavigation } from "@/lib/admin-navigation"
+import { AdminModeSwitch } from "@/components/admin-mode-switch"
+import { getTimeSlotsForDateString } from "@/lib/time-slots"
 
 interface Layanan {
   id: string
@@ -166,13 +169,7 @@ export default function AdminReservationsPage() {
     fetchReservations()
   }, [])
 
-  const navigationItems = [
-    { icon: Home, label: "Dashboard", href: "/admin/dashboard", active: false },
-    { icon: School, label: "Manajemen Sekolah", href: "/admin/sekolah", active: false },
-    { icon: Newspaper, label: "Manajemen Berita", href: "/admin/berita", active: false },
-    { icon: Calendar, label: "Manajemen Agenda", href: "/admin/agenda", active: false },
-    { icon: Calendar, label: "Laporan Reservasi", href: "/admin/reservasi", active: true },
-  ]
+  const navigationItems = buildAdminNavigation("/admin/reservasi")
 
   // Filter reservations based on selected filters
   const filteredReservations = reservations.filter(reservation => {
@@ -462,8 +459,8 @@ export default function AdminReservationsPage() {
           </ul>
         </nav>
 
-        {/* Logout Button */}
-        <div className="p-4 border-t border-sidebar-border">
+        <div className="p-4 border-t border-sidebar-border space-y-3">
+          <AdminModeSwitch collapsed={sidebarCollapsed} />
           <Button
             variant="ghost"
             onClick={handleLogout}
@@ -563,6 +560,12 @@ export default function AdminReservationsPage() {
               Kelola dan tindak lanjuti reservasi layanan dari masyarakat
             </p>
           </div>
+
+          <div className="mb-8">
+            <ReservationTimeSettings />
+          </div>
+
+          <BidangPresencePanel bidangSlug="paud" compact className="mb-8" />
 
           {/* Reservation Statistics with Quick Call */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
@@ -876,28 +879,11 @@ export default function AdminReservationsPage() {
                           <Button
                             size="sm"
                             variant="outline"
-                            className="flex-1 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950"
+                            className="w-full text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950"
                             onClick={() => handleViewDetails(reservation)}
                           >
                             <Eye className="w-4 h-4 mr-1" />
                             Detail
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="flex-1 text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-950"
-                            onClick={() => handleEditReservation(reservation)}
-                          >
-                            <Edit className="w-4 h-4 mr-1" />
-                            Edit
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
-                            onClick={() => handleDeleteReservation(reservation)}
-                          >
-                            <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
                       </CardContent>
@@ -1190,13 +1176,25 @@ export default function AdminReservationsPage() {
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="08:00">08:00 - 09:00</SelectItem>
-                      <SelectItem value="09:00">09:00 - 10:00</SelectItem>
-                      <SelectItem value="10:00">10:00 - 11:00</SelectItem>
-                      <SelectItem value="11:00">11:00 - 12:00</SelectItem>
-                      <SelectItem value="14:00">14:00 - 15:00</SelectItem>
-                      <SelectItem value="15:00">15:00 - 16:00</SelectItem>
+                    <SelectContent className="max-h-60">
+                      {(() => {
+                        const slots = getTimeSlotsForDateString(editingReservation.date)
+                        const hasCurrent = slots.some((s) => s.id === editingReservation.timeSlot)
+                        return (
+                          <>
+                            {!hasCurrent && editingReservation.timeSlot && (
+                              <SelectItem value={editingReservation.timeSlot}>
+                                {editingReservation.timeSlot}
+                              </SelectItem>
+                            )}
+                            {slots.map((slot) => (
+                              <SelectItem key={slot.id} value={slot.id}>
+                                {slot.time}
+                              </SelectItem>
+                            ))}
+                          </>
+                        )
+                      })()}
                     </SelectContent>
                   </Select>
                 </div>

@@ -1,5 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import {
+  FALLBACK_LAYANANS,
+  shouldUseFallbackForDbError,
+} from "@/lib/api-fallback-data"
 
 export async function GET() {
   try {
@@ -8,12 +12,19 @@ export async function GET() {
         isActive: true,
       },
       orderBy: {
-        createdAt: 'asc',
+        createdAt: "asc",
       },
     })
 
-    // Convert BigInt to string for JSON serialization
-    const serializedLayanans = layanans.map(layanan => ({
+    if (layanans.length === 0) {
+      return NextResponse.json({
+        success: true,
+        data: [...FALLBACK_LAYANANS],
+        fallback: true,
+      })
+    }
+
+    const serializedLayanans = layanans.map((layanan) => ({
       ...layanan,
       id: layanan.id.toString(),
     }))
@@ -24,11 +35,24 @@ export async function GET() {
     })
   } catch (error) {
     console.error("Error fetching layanans:", error)
-    return NextResponse.json({ 
-      success: false,
-      error: "Internal server error",
-      message: error instanceof Error ? error.message : "Unknown error"
-    }, { status: 500 })
+
+    if (shouldUseFallbackForDbError(error)) {
+      console.warn("[api/layanans] Database tidak terhubung — memakai data cadangan.")
+      return NextResponse.json({
+        success: true,
+        data: [...FALLBACK_LAYANANS],
+        fallback: true,
+      })
+    }
+
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Internal server error",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 },
+    )
   }
 }
 
@@ -38,10 +62,13 @@ export async function POST(request: NextRequest) {
     const { name, description, icon, color } = body
 
     if (!name) {
-      return NextResponse.json({ 
-        success: false,
-        error: "Name is required" 
-      }, { status: 400 })
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Name is required",
+        },
+        { status: 400 },
+      )
     }
 
     const layanan = await prisma.layanan.create({
@@ -54,7 +81,6 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // Convert BigInt to string
     const serializedLayanan = {
       ...layanan,
       id: layanan.id.toString(),
@@ -67,11 +93,13 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error("Error creating layanan:", error)
-    return NextResponse.json({ 
-      success: false,
-      error: "Internal server error",
-      message: error instanceof Error ? error.message : "Unknown error"
-    }, { status: 500 })
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Internal server error",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 },
+    )
   }
 }
-
