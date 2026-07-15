@@ -114,7 +114,7 @@ export function BidangCapacityPanel({
     <Card className={cn("shadow-lg border-0", className)}>
       <CardHeader className="pb-3">
         <CardTitle className="text-lg flex items-center gap-2">
-          <Clock3 className="w-5 h-5 text-blue-600" />
+          <Clock3 className="w-5 h-5 text-brand-accent" />
           Kapasitas Tamu per Slot Waktu
         </CardTitle>
         <p className="text-sm text-muted-foreground mt-1">
@@ -174,7 +174,7 @@ export function BidangCapacityPanel({
                         className={cn(
                           "h-9 w-9 rounded-md border text-sm font-semibold transition-colors",
                           draft[row.slug] === n
-                            ? "border-blue-600 bg-blue-50 text-blue-700 dark:bg-blue-950"
+                            ? "border-brand-primary bg-blue-50 text-brand-text-navy dark:bg-blue-950"
                             : "border-border hover:border-blue-300",
                         )}
                       >

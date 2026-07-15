@@ -132,7 +132,7 @@ export function ScrollingAgendaCarousel({ agendas }: ScrollingAgendaCarouselProp
           <div key={agenda.id}>
             <Card className="card-glow card-glow-purple overflow-hidden group border-2 border-transparent h-full max-w-sm mx-auto">
               <CardContent className="p-4 sm:p-5">
-                <h3 className="text-base sm:text-lg font-bold text-foreground mb-2 transition-all duration-300 group-hover:text-blue-600 line-clamp-2">
+                <h3 className="text-base sm:text-lg font-bold text-foreground mb-2 transition-all duration-300 group-hover:text-brand-accent line-clamp-2">
                   {agenda.title}
                 </h3>
                 <p className="text-muted-foreground text-xs sm:text-sm mb-1.5">
@@ -144,7 +144,7 @@ export function ScrollingAgendaCarousel({ agendas }: ScrollingAgendaCarouselProp
                 <p className="text-muted-foreground text-sm mb-3 line-clamp-2">{agenda.description}</p>
                 <Link
                   href={`/agenda/${agenda.slug}`}
-                  className="text-sm text-blue-600 hover:text-blue-700 font-medium transition-all duration-300 relative group-hover:translate-x-2 inline-flex items-center"
+                  className="text-sm text-brand-accent hover:text-brand-accent-hover font-medium transition-all duration-300 relative group-hover:translate-x-2 inline-flex items-center"
                 >
                   Lihat Detail
                   <span className="ml-1 transition-transform duration-300 group-hover:translate-x-1">→</span>
@@ -179,7 +179,7 @@ export function ScrollingAgendaCarousel({ agendas }: ScrollingAgendaCarouselProp
           >
             <Card className="card-glow card-glow-purple overflow-hidden group border-2 border-transparent h-full bg-white dark:bg-card shadow-lg">
               <CardContent className="p-4 sm:p-5">
-                <h3 className="text-base sm:text-lg font-bold text-foreground mb-2 transition-all duration-300 group-hover:text-blue-600 line-clamp-2">
+                <h3 className="text-base sm:text-lg font-bold text-foreground mb-2 transition-all duration-300 group-hover:text-brand-accent line-clamp-2">
                   {agenda.title}
                 </h3>
                 <p className="text-muted-foreground text-xs sm:text-sm mb-1.5">
@@ -191,7 +191,7 @@ export function ScrollingAgendaCarousel({ agendas }: ScrollingAgendaCarouselProp
                 <p className="text-muted-foreground text-sm mb-3 line-clamp-2">{agenda.description}</p>
                 <Link
                   href={`/agenda/${agenda.slug}`}
-                  className="text-sm text-blue-600 hover:text-blue-700 font-medium transition-all duration-300 relative group-hover:translate-x-2 inline-flex items-center"
+                  className="text-sm text-brand-accent hover:text-brand-accent-hover font-medium transition-all duration-300 relative group-hover:translate-x-2 inline-flex items-center"
                 >
                   Lihat Detail
                   <span className="ml-1 transition-transform duration-300 group-hover:translate-x-1">→</span>
@@ -227,7 +227,7 @@ export function ScrollingAgendaCarousel({ agendas }: ScrollingAgendaCarouselProp
           <button
             key={index}
             className={`w-3 h-3 rounded-full transition-all duration-300 ${
-              index === currentIndex ? "bg-blue-600 scale-125" : "bg-gray-300 hover:bg-gray-400 dark:bg-gray-600 dark:hover:bg-gray-500"
+              index === currentIndex ? "bg-brand-primary scale-125" : "bg-gray-300 hover:bg-gray-400 dark:bg-gray-600 dark:hover:bg-gray-500"
             }`}
             onClick={() => goToSlide(index)}
           />

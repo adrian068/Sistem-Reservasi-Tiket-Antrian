@@ -306,7 +306,7 @@ function ToggleButton({
         "text-xs",
         active &&
           (tone === "blue"
-            ? "border-blue-300 text-blue-700 bg-blue-50 dark:bg-blue-950"
+            ? "border-blue-300 text-brand-text-navy bg-blue-50 dark:bg-blue-950"
             : "border-green-300 text-green-700 bg-green-50 dark:bg-green-950"),
       )}
     >

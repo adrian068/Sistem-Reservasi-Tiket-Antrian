@@ -39,7 +39,7 @@ export function DinasHero({
           className="object-cover object-center"
           priority
         />
-        <div className="absolute inset-0 bg-blue-900/65" />
+        <div className="absolute inset-0 bg-brand-header/65" />
       </div>
 
       {actions ? (

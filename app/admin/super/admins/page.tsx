@@ -303,7 +303,7 @@ export default function SuperAdminAdminsPage() {
         <Card className="lg:col-span-2 border-violet-200 dark:border-violet-900">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
-              <UserPlus className="w-5 h-5 text-violet-600" />
+              <UserPlus className="w-5 h-5 text-brand-accent" />
               Admin Baru
             </CardTitle>
           </CardHeader>
@@ -410,7 +410,7 @@ export default function SuperAdminAdminsPage() {
               <Button
                 type="submit"
                 disabled={saving}
-                className="w-full bg-violet-600 hover:bg-violet-700"
+                className="w-full bg-brand-primary hover:bg-brand-accent-hover"
               >
                 {saving ? (
                   <>
@@ -430,14 +430,14 @@ export default function SuperAdminAdminsPage() {
         <Card className="lg:col-span-3">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
-              <UserCog className="w-5 h-5 text-violet-600" />
+              <UserCog className="w-5 h-5 text-brand-accent" />
               Daftar Admin ({admins.length})
             </CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (
               <div className="flex justify-center py-12">
-                <Loader2 className="w-8 h-8 animate-spin text-violet-600" />
+                <Loader2 className="w-8 h-8 animate-spin text-brand-accent" />
               </div>
             ) : (
               <div className="overflow-x-auto rounded-lg border">
@@ -474,7 +474,7 @@ export default function SuperAdminAdminsPage() {
                                   row.peran === "SUPER_ADMIN" ? "default" : "secondary"
                                 }
                                 className={
-                                  row.peran === "SUPER_ADMIN" ? "bg-violet-600" : undefined
+                                  row.peran === "SUPER_ADMIN" ? "bg-brand-primary" : undefined
                                 }
                               >
                                 {row.peranLabel}
@@ -625,7 +625,7 @@ export default function SuperAdminAdminsPage() {
             <Button
               onClick={handleEditSave}
               disabled={editSaving}
-              className="bg-violet-600 hover:bg-violet-700"
+              className="bg-brand-primary hover:bg-brand-accent-hover"
             >
               {editSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Simpan Perubahan"}
             </Button>

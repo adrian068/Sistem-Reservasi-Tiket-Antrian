@@ -220,7 +220,7 @@ export function ScrollingNewsCarousel() {
                     </Badge>
                   )}
                 </div>
-                <h3 className="text-base sm:text-lg font-bold text-foreground mb-2 transition-all duration-300 group-hover:text-blue-600 line-clamp-2">
+                <h3 className="text-base sm:text-lg font-bold text-foreground mb-2 transition-all duration-300 group-hover:text-brand-accent line-clamp-2">
                   {news.judul}
                 </h3>
                 <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
@@ -228,7 +228,7 @@ export function ScrollingNewsCarousel() {
                 </p>
                 <Link
                   href={`/berita/${news.slug}`}
-                  className="text-sm text-blue-600 hover:text-blue-700 font-medium transition-all duration-300 relative group-hover:translate-x-2 inline-flex items-center"
+                  className="text-sm text-brand-accent hover:text-brand-accent-hover font-medium transition-all duration-300 relative group-hover:translate-x-2 inline-flex items-center"
                 >
                   Baca Selengkapnya
                   <span className="ml-1 transition-transform duration-300 group-hover:translate-x-1">→</span>
@@ -264,7 +264,7 @@ export function ScrollingNewsCarousel() {
           <button
             key={index}
             className={`w-3 h-3 rounded-full transition-all duration-300 ${
-              index === currentIndex ? "bg-blue-600 scale-125" : "bg-gray-300 hover:bg-gray-400 dark:bg-gray-600 dark:hover:bg-gray-500"
+              index === currentIndex ? "bg-brand-primary scale-125" : "bg-gray-300 hover:bg-gray-400 dark:bg-gray-600 dark:hover:bg-gray-500"
             }`}
             onClick={() => goToSlide(index)}
           />

@@ -1,4 +1,5 @@
 import { Resend } from 'resend'
+import { BRAND } from '@/lib/brand'
 
 // Inisialisasi Resend
 const resend = new Resend(process.env.RESEND_API_KEY)
@@ -23,11 +24,11 @@ export async function sendOTPEmail(
           <style>
             body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
             .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+            .header { background: linear-gradient(135deg, ${BRAND.primary} 0%, ${BRAND.accent} 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
             .content { background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px; }
-            .otp-box { background: white; border: 2px dashed #3b82f6; padding: 20px; text-align: center; margin: 20px 0; border-radius: 8px; }
-            .otp-code { font-size: 32px; font-weight: bold; color: #3b82f6; letter-spacing: 8px; }
-            .info-box { background: #e0f2fe; border-left: 4px solid #0ea5e9; padding: 15px; margin: 20px 0; border-radius: 4px; }
+            .otp-box { background: white; border: 2px dashed ${BRAND.accent}; padding: 20px; text-align: center; margin: 20px 0; border-radius: 8px; }
+            .otp-code { font-size: 32px; font-weight: bold; color: ${BRAND.accent}; letter-spacing: 8px; }
+            .info-box { background: ${BRAND.lightBg}; border-left: 4px solid ${BRAND.primary}; padding: 15px; margin: 20px 0; border-radius: 4px; }
             .warning { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0; border-radius: 4px; }
             .footer { text-align: center; margin-top: 30px; color: #6b7280; font-size: 12px; }
           </style>

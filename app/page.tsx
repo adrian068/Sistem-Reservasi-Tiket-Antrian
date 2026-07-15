@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { ScrollReveal } from "@/components/scroll-reveal"
 import { SiteHeader } from "@/components/site-header"
+import { SirediLogo } from "@/components/siredi-logo"
 import { SirediPageBackground } from "@/components/siredi-page-background"
 import { PublicQueueBoard } from "@/components/public-queue-board"
 import { cn } from "@/lib/utils"
@@ -24,7 +25,7 @@ const HIGHLIGHTS = [
     title: "Profil Dinas",
     description: "Penyelenggara pendidikan dasar dan menengah di Kota Banjarmasin.",
     accent: "from-blue-500 to-blue-700",
-    iconBg: "bg-blue-500/15 text-blue-600",
+    iconBg: "bg-blue-500/15 text-brand-accent",
     ring: "group-hover:ring-blue-400/40",
   },
   {
@@ -62,6 +63,9 @@ export default function HomePage() {
         <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-8 sm:py-12 lg:py-14">
           <ScrollReveal animation="fade-up" delay={0}>
             <div className="text-center text-white mb-8 sm:mb-10">
+              <div className="flex justify-center mb-5">
+                <SirediLogo size="lg" showText={false} href={null} />
+              </div>
               <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-xs sm:text-sm font-medium backdrop-blur-md mb-4">
                 <Sparkles className="w-3.5 h-3.5 text-amber-200" />
                 Sistem Informasi Reservasi Dinas Pendidikan
@@ -120,7 +124,7 @@ export default function HomePage() {
                   {STEPS.map((step, i) => (
                     <div key={step.label} className="flex items-center gap-2 sm:gap-3">
                       <span className="inline-flex items-center gap-2 rounded-full bg-white/90 px-3 py-1.5 text-xs sm:text-sm font-medium text-gray-700 shadow-sm">
-                        <step.icon className="w-3.5 h-3.5 text-blue-600" />
+                        <step.icon className="w-3.5 h-3.5 text-brand-accent" />
                         {step.label}
                       </span>
                       {i < STEPS.length - 1 && (
@@ -130,7 +134,7 @@ export default function HomePage() {
                   ))}
                 </div>
 
-                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 p-5 sm:p-8 text-white shadow-inner">
+                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-header via-brand-primary to-brand-text-navy p-5 sm:p-8 text-white shadow-inner">
                   <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-white/10 blur-2xl" />
                   <div className="absolute -bottom-16 -left-8 w-48 h-48 rounded-full bg-emerald-400/20 blur-3xl" />
 
@@ -148,7 +152,7 @@ export default function HomePage() {
                       <Button
                         asChild
                         size="lg"
-                        className="h-12 px-8 text-base font-semibold bg-white text-blue-700 hover:bg-blue-50 shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all"
+                        className="h-12 px-8 text-base font-semibold bg-white text-brand-text-navy hover:bg-brand-light-bg shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all"
                       >
                         <Link href="/reservasi">
                           Klik Reservasi

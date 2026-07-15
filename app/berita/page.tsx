@@ -150,7 +150,7 @@ export default function BeritaPage() {
                 onClick={() => setSelectedCategory(category)}
                 className={`transition-all duration-300 ${
                   selectedCategory === category
-                    ? "bg-blue-600 hover:bg-blue-700"
+                    ? "bg-brand-primary hover:bg-brand-accent-hover"
                     : "bg-transparent hover:bg-blue-50 hover:border-blue-300"
                 }`}
               >
@@ -186,7 +186,7 @@ export default function BeritaPage() {
                   )}
                 </div>
 
-                <h3 className="text-base sm:text-lg font-bold text-foreground mb-2 transition-all duration-300 group-hover:text-blue-600 line-clamp-2">
+                <h3 className="text-base sm:text-lg font-bold text-foreground mb-2 transition-all duration-300 group-hover:text-brand-accent line-clamp-2">
                   {news.judul}
                 </h3>
 
@@ -209,7 +209,7 @@ export default function BeritaPage() {
 
                 <Link
                   href={`/berita/${news.slug}`}
-                  className="text-sm text-blue-600 hover:text-blue-700 font-medium transition-all duration-300 relative group-hover:translate-x-2 inline-flex items-center"
+                  className="text-sm text-brand-accent hover:text-brand-accent-hover font-medium transition-all duration-300 relative group-hover:translate-x-2 inline-flex items-center"
                 >
                   Baca Selengkapnya
                   <span className="ml-1 transition-transform duration-300 group-hover:translate-x-1">→</span>

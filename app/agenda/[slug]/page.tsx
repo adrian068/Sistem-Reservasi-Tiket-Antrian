@@ -220,7 +220,7 @@ export default function AgendaDetailPage() {
               <h2 className="text-2xl font-bold text-foreground mb-6">Detail Acara</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex items-start space-x-3">
-                  <Calendar className="w-5 h-5 text-blue-600 mt-1" />
+                  <Calendar className="w-5 h-5 text-brand-accent mt-1" />
                   <div>
                     <p className="text-sm text-muted-foreground">Tanggal</p>
                     <p className="font-semibold text-foreground">{formatDate(agenda.date)}</p>
@@ -228,7 +228,7 @@ export default function AgendaDetailPage() {
                 </div>
 
                 <div className="flex items-start space-x-3">
-                  <Clock className="w-5 h-5 text-blue-600 mt-1" />
+                  <Clock className="w-5 h-5 text-brand-accent mt-1" />
                   <div>
                     <p className="text-sm text-muted-foreground">Waktu</p>
                     <p className="font-semibold text-foreground">{agenda.time}</p>
@@ -236,7 +236,7 @@ export default function AgendaDetailPage() {
                 </div>
 
                 <div className="flex items-start space-x-3">
-                  <MapPin className="w-5 h-5 text-blue-600 mt-1" />
+                  <MapPin className="w-5 h-5 text-brand-accent mt-1" />
                   <div>
                     <p className="text-sm text-muted-foreground">Lokasi</p>
                     <p className="font-semibold text-foreground">{agenda.location}</p>
@@ -245,7 +245,7 @@ export default function AgendaDetailPage() {
                 </div>
 
                 <div className="flex items-start space-x-3">
-                  <User className="w-5 h-5 text-blue-600 mt-1" />
+                  <User className="w-5 h-5 text-brand-accent mt-1" />
                   <div>
                     <p className="text-sm text-muted-foreground">Penyelenggara</p>
                     <p className="font-semibold text-foreground">{agenda.organizer}</p>
@@ -253,7 +253,7 @@ export default function AgendaDetailPage() {
                 </div>
 
                 <div className="flex items-start space-x-3">
-                  <Users className="w-5 h-5 text-blue-600 mt-1" />
+                  <Users className="w-5 h-5 text-brand-accent mt-1" />
                   <div>
                     <p className="text-sm text-muted-foreground">Kapasitas</p>
                     <p className="font-semibold text-foreground">{agenda.capacity} orang</p>
@@ -261,7 +261,7 @@ export default function AgendaDetailPage() {
                 </div>
 
                 <div className="flex items-start space-x-3">
-                  <DollarSign className="w-5 h-5 text-blue-600 mt-1" />
+                  <DollarSign className="w-5 h-5 text-brand-accent mt-1" />
                   <div>
                     <p className="text-sm text-muted-foreground">Biaya Pendaftaran</p>
                     <p className="font-semibold text-foreground">{agenda.registrationFee}</p>
@@ -269,7 +269,7 @@ export default function AgendaDetailPage() {
                 </div>
 
                 <div className="flex items-start space-x-3">
-                  <Phone className="w-5 h-5 text-blue-600 mt-1" />
+                  <Phone className="w-5 h-5 text-brand-accent mt-1" />
                   <div>
                     <p className="text-sm text-muted-foreground">Kontak</p>
                     <p className="font-semibold text-foreground">{agenda.contactPerson}</p>

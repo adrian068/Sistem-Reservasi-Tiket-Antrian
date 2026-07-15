@@ -1,11 +1,12 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Crown, LogOut, X } from "lucide-react"
+import { LogOut, X } from "lucide-react"
 import { useRouter, usePathname } from "next/navigation"
 import { useState } from "react"
 import { buildSuperAdminNavigation } from "@/lib/super-admin-navigation"
 import { AdminModeSwitch } from "@/components/admin-mode-switch"
+import { AdminSidebarBrand } from "@/components/admin-sidebar-brand"
 
 interface SuperAdminSidebarProps {
   sidebarCollapsed: boolean
@@ -46,9 +47,9 @@ export function SuperAdminSidebar({
       )}
 
       <div
-        className={`bg-gradient-to-b from-slate-900 via-violet-950 to-slate-900 text-white transition-all duration-300 ${
+        className={`bg-brand-header text-white transition-all duration-300 ${
           sidebarCollapsed ? "w-20" : "w-64"
-        } flex flex-col fixed lg:relative z-50 h-full border-r border-violet-500/30 ${
+        } flex flex-col fixed lg:relative z-50 h-full border-r border-brand-header-dark ${
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
       >
@@ -63,19 +64,11 @@ export function SuperAdminSidebar({
           </Button>
         </div>
 
-        <div className="p-4 border-b border-violet-500/30">
+        <div className="p-4 border-b border-brand-header-dark">
           <div
             className={`flex items-center ${sidebarCollapsed ? "justify-center" : "space-x-3"}`}
           >
-            <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-violet-500 rounded-lg flex items-center justify-center shrink-0 shadow-lg">
-              <Crown className="w-6 h-6 text-white" />
-            </div>
-            {!sidebarCollapsed && (
-              <div>
-                <span className="text-lg font-bold block leading-tight">Super Admin</span>
-                <span className="text-xs text-violet-200">SIREDI Control</span>
-              </div>
-            )}
+            <AdminSidebarBrand collapsed={sidebarCollapsed} variant="light" />
           </div>
         </div>
 
@@ -93,8 +86,8 @@ export function SuperAdminSidebar({
                     }}
                     className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                       item.active
-                        ? "bg-violet-600/80 text-white shadow-md"
-                        : "text-violet-100 hover:bg-white/10"
+                        ? "bg-brand-primary text-white shadow-md"
+                        : "text-blue-100 hover:bg-white/10"
                     } ${sidebarCollapsed ? "justify-center" : ""}`}
                     title={sidebarCollapsed ? item.label : undefined}
                   >
@@ -107,7 +100,7 @@ export function SuperAdminSidebar({
           </ul>
         </nav>
 
-        <div className="p-4 border-t border-violet-500/30 space-y-3">
+        <div className="p-4 border-t border-brand-header-dark space-y-3">
           <AdminModeSwitch collapsed={sidebarCollapsed} variant="super" />
           <Button
             variant="ghost"

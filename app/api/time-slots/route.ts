@@ -55,10 +55,17 @@ export async function GET(request: NextRequest) {
       durationMinutes: slot.durationMinutes,
     }))
 
-    return NextResponse.json({
-      success: true,
-      data: timeSlots,
-    })
+    return NextResponse.json(
+      {
+        success: true,
+        data: timeSlots,
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+        },
+      },
+    )
   } catch (error) {
     console.error("Error fetching time slots:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })

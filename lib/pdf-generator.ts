@@ -1,5 +1,6 @@
 // PDF Generator utility for reservation tickets using jsPDF
 import { jsPDF } from 'jspdf'
+import { BRAND } from '@/lib/brand'
 
 export interface ReservationTicketData {
   queueNumber: string
@@ -25,7 +26,7 @@ export async function generateTicketPDF(data: ReservationTicketData): Promise<vo
     doc.setFont('helvetica')
 
     // Colors
-    const blue = '#2563eb'
+    const blue = BRAND.accent
     const darkGray = '#374151'
     const lightGray = '#6b7280'
 

@@ -361,7 +361,7 @@ export default function NewsDetailPage({ params }: NewsDetailPageProps) {
                           />
                         </div>
                         <div>
-                          <h4 className="font-semibold text-foreground mb-1 hover:text-blue-600 transition-colors">
+                          <h4 className="font-semibold text-foreground mb-1 hover:text-brand-accent transition-colors">
                             {item.judul}
                           </h4>
                           <p className="text-sm text-muted-foreground line-clamp-2">

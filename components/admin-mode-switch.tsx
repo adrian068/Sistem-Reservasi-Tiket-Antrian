@@ -64,7 +64,7 @@ export function AdminModeSwitch({
         <p
           className={cn(
             "text-[10px] uppercase tracking-wider font-medium px-1",
-            isSuperTheme ? "text-violet-300" : "text-muted-foreground",
+            isSuperTheme ? "text-blue-200" : "text-muted-foreground",
           )}
         >
           Pindah panel
@@ -78,10 +78,10 @@ export function AdminModeSwitch({
             baseLink,
             inAdminPanel
               ? isSuperTheme
-                ? "bg-white text-violet-900 shadow-md"
-                : "bg-blue-600 text-white shadow-md"
+                ? "bg-white text-brand-text-navy shadow-md"
+                : "bg-brand-primary text-white shadow-md"
               : isSuperTheme
-                ? "bg-white/10 text-violet-100 hover:bg-white/20"
+                ? "bg-white/10 text-blue-100 hover:bg-white/20"
                 : "bg-muted text-muted-foreground hover:bg-accent",
           )}
         >
@@ -94,9 +94,9 @@ export function AdminModeSwitch({
           className={cn(
             baseLink,
             inSuperPanel
-              ? "bg-gradient-to-r from-amber-400 to-violet-500 text-white shadow-md"
+              ? "bg-brand-accent text-white shadow-md"
               : isSuperTheme
-                ? "bg-white/10 text-violet-100 hover:bg-white/20"
+                ? "bg-white/10 text-blue-100 hover:bg-white/20"
                 : "bg-muted text-muted-foreground hover:bg-accent",
           )}
         >

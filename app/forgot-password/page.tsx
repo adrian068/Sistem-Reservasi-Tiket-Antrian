@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Mail, Lock, ArrowLeft, Loader2, CheckCircle, Shield } from "lucide-react"
 import Link from "next/link"
+import { SirediLogo } from "@/components/siredi-logo"
 
 export default function ForgotPasswordPage() {
   const router = useRouter()
@@ -91,7 +92,7 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-700 via-blue-600 via-blue-500 to-blue-300 relative overflow-hidden flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-brand-header via-brand-primary via-brand-accent to-brand-light relative overflow-hidden flex items-center justify-center p-4">
       <div className="absolute top-16 left-16 w-40 h-40 bg-white/8 rounded-full blur-3xl"></div>
       <div className="absolute top-32 right-24 w-32 h-32 bg-white/12 rounded-full blur-2xl"></div>
       <div className="absolute bottom-40 left-1/3 w-48 h-48 bg-white/6 rounded-full blur-3xl"></div>
@@ -101,8 +102,8 @@ export default function ForgotPasswordPage() {
         <Card className="bg-white/98 backdrop-blur-md shadow-2xl border-0 rounded-2xl">
           <CardHeader>
             <div className="text-center mb-4">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-full mb-4 shadow-lg">
-                <Shield className="w-8 h-8 text-white" />
+              <div className="flex justify-center mb-4">
+                <SirediLogo size="md" showText={false} href={null} />
               </div>
               <CardTitle className="text-2xl font-bold text-gray-900">
                 {step === "request" && "Reset Password"}
@@ -142,7 +143,7 @@ export default function ForgotPasswordPage() {
                 <Button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full h-12 bg-blue-600 hover:bg-blue-700"
+                  className="w-full h-12 bg-brand-primary hover:bg-brand-accent-hover"
                 >
                   {isLoading ? (
                     <>
@@ -156,7 +157,7 @@ export default function ForgotPasswordPage() {
 
                 <Link
                   href="/login"
-                  className="flex items-center justify-center text-sm text-blue-600 hover:text-blue-700"
+                  className="flex items-center justify-center text-sm text-brand-accent hover:text-brand-accent-hover"
                 >
                   <ArrowLeft className="w-4 h-4 mr-1" />
                   Kembali ke Login
@@ -232,7 +233,7 @@ export default function ForgotPasswordPage() {
                 <Button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full h-12 bg-blue-600 hover:bg-blue-700"
+                  className="w-full h-12 bg-brand-primary hover:bg-brand-accent-hover"
                 >
                   {isLoading ? (
                     <>
@@ -253,7 +254,7 @@ export default function ForgotPasswordPage() {
                     setConfirmPassword("")
                     setError("")
                   }}
-                  className="w-full text-sm text-blue-600 hover:text-blue-700 font-medium"
+                  className="w-full text-sm text-brand-accent hover:text-brand-accent-hover font-medium"
                 >
                   Kirim ulang OTP
                 </button>
@@ -276,7 +277,7 @@ export default function ForgotPasswordPage() {
                   </p>
                 </div>
                 <Link href="/login">
-                  <Button className="w-full h-12 bg-blue-600 hover:bg-blue-700">
+                  <Button className="w-full h-12 bg-brand-primary hover:bg-brand-accent-hover">
                     Kembali ke Login
                   </Button>
                 </Link>

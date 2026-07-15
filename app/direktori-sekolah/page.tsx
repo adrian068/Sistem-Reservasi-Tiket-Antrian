@@ -196,7 +196,7 @@ export default function SchoolDirectory() {
                 }}
                 className={`transition-all duration-300 ${
                   selectedLevel === ""
-                    ? "bg-blue-600 hover:bg-blue-700"
+                    ? "bg-brand-primary hover:bg-brand-accent-hover"
                     : "bg-transparent hover:bg-blue-50 hover:border-blue-300"
                 }`}
               >
@@ -211,7 +211,7 @@ export default function SchoolDirectory() {
                 }}
                 className={`transition-all duration-300 ${
                   selectedLevel === "PAUD"
-                    ? "bg-blue-600 hover:bg-blue-700"
+                    ? "bg-brand-primary hover:bg-brand-accent-hover"
                     : "bg-transparent hover:bg-blue-50 hover:border-blue-300"
                 }`}
               >
@@ -226,7 +226,7 @@ export default function SchoolDirectory() {
                 }}
                 className={`transition-all duration-300 ${
                   selectedLevel === "SD"
-                    ? "bg-blue-600 hover:bg-blue-700"
+                    ? "bg-brand-primary hover:bg-brand-accent-hover"
                     : "bg-transparent hover:bg-blue-50 hover:border-blue-300"
                 }`}
               >
@@ -241,7 +241,7 @@ export default function SchoolDirectory() {
                 }}
                 className={`transition-all duration-300 ${
                   selectedLevel === "SMP"
-                    ? "bg-blue-600 hover:bg-blue-700"
+                    ? "bg-brand-primary hover:bg-brand-accent-hover"
                     : "bg-transparent hover:bg-blue-50 hover:border-blue-300"
                 }`}
               >
@@ -282,7 +282,7 @@ export default function SchoolDirectory() {
           {/* Loading State */}
           {loading && (
             <div className="text-center py-12">
-              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-brand-primary"></div>
               <p className="mt-4 text-gray-600">Memuat data sekolah...</p>
             </div>
           )}
@@ -351,7 +351,7 @@ export default function SchoolDirectory() {
                   {/* Badges */}
                       <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
                         {school.jenjang && (
-                          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                          <Badge variant="outline" className="bg-blue-50 text-brand-text-navy border-blue-200">
                             {school.jenjang}
                           </Badge>
                         )}
@@ -391,7 +391,7 @@ export default function SchoolDirectory() {
 
                       {/* View Detail Button */}
                   <Link href={`/direktori-sekolah/${school.id}`}>
-                        <Button className="w-full bg-blue-600 hover:bg-blue-700">Lihat Detail</Button>
+                        <Button className="w-full bg-brand-primary hover:bg-brand-accent-hover">Lihat Detail</Button>
                   </Link>
                 </CardContent>
               </Card>

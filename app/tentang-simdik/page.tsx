@@ -28,6 +28,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import SocialMediaLinks from "@/components/SocialMediaLinks";
+import { SirediLogo } from "@/components/siredi-logo";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 
@@ -148,14 +149,7 @@ export default function AboutSIMDIKPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link href="/" className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center transform transition-all duration-300 hover:scale-110 hover:rotate-3">
-                <School className="w-6 h-6 text-white" />
-              </div>
-              <span className="text-xl font-bold text-foreground transition-colors duration-300 hover:text-primary">
-                SIREDI Kota Banjarmasin
-              </span>
-            </Link>
+            <SirediLogo size="sm" href="/" />
 
             {/* Navigation */}
             <nav className="hidden md:flex items-center space-x-8">
@@ -171,7 +165,7 @@ export default function AboutSIMDIKPage() {
                   {item.label}
                   <span
                     className={cn(
-                      "absolute -bottom-1 left-0 h-0.5 bg-blue-600 transition-all duration-300",
+                      "absolute -bottom-1 left-0 h-0.5 bg-brand-accent transition-all duration-300",
                       isActive(item) ? "w-full" : "w-0 group-hover:w-full"
                     )}
                   />
@@ -230,22 +224,22 @@ export default function AboutSIMDIKPage() {
             className="object-cover object-center animate-bg-pan"
             priority
           />
-          <div className="absolute inset-0 bg-blue-900 opacity-60"></div>{" "}
+          <div className="absolute inset-0 bg-brand-header opacity-60"></div>{" "}
           {/* Dark overlay for text readability */}
         </div>
         {/* Background Animation - More colorful and dynamic "pernak-pernik" */}
         <div className="absolute inset-0 opacity-30">
           <ScrollReveal animation="scale" delay={0}>
-            <div className="absolute top-10 left-10 w-24 h-24 bg-blue-400 rounded-full animate-float-strong blur-sm"></div>
+            <div className="absolute top-10 left-10 w-24 h-24 bg-brand-accent/40 rounded-full animate-float-strong blur-sm"></div>
           </ScrollReveal>
           <ScrollReveal animation="scale" delay={200}>
-            <div className="absolute top-32 right-20 w-20 h-20 bg-blue-500 rounded-full animate-float-delayed-strong blur-sm"></div>
+            <div className="absolute top-32 right-20 w-20 h-20 bg-brand-primary/50 rounded-full animate-float-delayed-strong blur-sm"></div>
           </ScrollReveal>
           <ScrollReveal animation="scale" delay={400}>
-            <div className="absolute bottom-20 left-1/4 w-16 h-16 bg-blue-600 rounded-full animate-float-strong blur-sm"></div>
+            <div className="absolute bottom-20 left-1/4 w-16 h-16 bg-brand-primary rounded-full animate-float-strong blur-sm"></div>
           </ScrollReveal>
           <ScrollReveal animation="scale" delay={600}>
-            <div className="absolute bottom-10 right-1/3 w-12 h-12 bg-blue-700 rounded-full animate-float-delayed-strong blur-sm"></div>
+            <div className="absolute bottom-10 right-1/3 w-12 h-12 bg-brand-header rounded-full animate-float-delayed-strong blur-sm"></div>
           </ScrollReveal>
 
           {/* Additional "pernak-pernik" */}
@@ -256,7 +250,7 @@ export default function AboutSIMDIKPage() {
             <div className="absolute bottom-5 right-10 w-20 h-20 bg-purple-400 rounded-full animate-float-delayed-strong blur-sm"></div>
           </ScrollReveal>
           <ScrollReveal animation="scale" delay={500}>
-            <div className="absolute top-1/4 right-1/4 w-10 h-10 bg-blue-300 rounded-full animate-float-strong blur-sm"></div>
+            <div className="absolute top-1/4 right-1/4 w-10 h-10 bg-brand-light rounded-full animate-float-strong blur-sm"></div>
           </ScrollReveal>
           <ScrollReveal animation="scale" delay={700}>
             <div className="absolute bottom-1/4 left-1/3 w-14 h-14 bg-indigo-400 rounded-lg transform -rotate-30 animate-float-delayed-strong blur-sm"></div>
@@ -401,10 +395,10 @@ export default function AboutSIMDIKPage() {
                       </div>
                       <CardContent className="p-6">
                         <div className="flex items-center space-x-4 mb-4">
-                          <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                          <div className="w-12 h-12 bg-blue-100 text-brand-accent rounded-full flex items-center justify-center flex-shrink-0">
                             <Icon className="w-6 h-6" />
                           </div>
-                          <h3 className="text-xl font-bold text-foreground transition-all duration-300 group-hover:text-blue-600">
+                          <h3 className="text-xl font-bold text-foreground transition-all duration-300 group-hover:text-brand-accent">
                             {activity.title}
                           </h3>
                         </div>
@@ -432,19 +426,12 @@ export default function AboutSIMDIKPage() {
       </section>
 
       {/* Footer - Consistent with main page */}
-      <footer className="bg-blue-900 text-white py-12">
+      <footer className="bg-brand-footer text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {/* Column 1: Logo and Mission */}
             <div>
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <School className="w-6 h-6 text-white" />
-                </div>
-                <span className="text-xl font-bold text-white">
-                  SIREDI (Sistem Reservasi Dinas Pendidikan dan Informasi)
-                </span>
-              </div>
+              <SirediLogo size="sm" variant="light" href={null} />
               <p className="text-blue-200 leading-relaxed">
                 Membangun masa depan pendidikan Banjarmasin melalui inovasi,
                 kolaborasi, dan komitmen untuk mencerdaskan generasi bangsa.
@@ -516,7 +503,7 @@ export default function AboutSIMDIKPage() {
           </div>
 
           {/* Copyright */}
-          <div className="border-t border-blue-800 mt-8 pt-8 text-center text-blue-200">
+          <div className="border-t border-brand-header-dark mt-8 pt-8 text-center text-blue-200">
             <p>
               &copy; {new Date().getFullYear()} Dinas Pendidikan Kota
               Banjarmasin. Semua hak dilindungi.

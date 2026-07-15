@@ -6,6 +6,7 @@ import { BidangPresencePanel } from "@/components/admin/bidang-presence-panel"
 import { ReservationTimeSettings } from "@/components/admin/reservation-time-settings"
 import { BidangQueuePanel } from "@/components/admin/bidang-queue-panel"
 import { BidangSchedulePanel } from "@/components/admin/bidang-schedule-panel"
+import { SirediLogo } from "@/components/siredi-logo"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useLogout } from "@/hooks/use-logout"
 import { getBidangConfig, type BidangSlug } from "@/lib/bidang-config"
@@ -34,6 +35,7 @@ export function BidangAdminPage({ bidangSlug }: BidangAdminPageProps) {
       <header className="sticky top-0 z-40 border-b border-border bg-card/95 backdrop-blur">
         <div className="flex items-center justify-between px-4 py-3 lg:px-6">
           <div className="flex items-center gap-3">
+            <SirediLogo size="sm" showText={false} href={null} imageClassName="w-9 h-9" />
             <div className="flex items-center gap-2">
               <div className={cn("p-2 rounded-lg", config.accentIconBg)}>
                 <Icon className={cn("w-5 h-5", config.accentText)} />

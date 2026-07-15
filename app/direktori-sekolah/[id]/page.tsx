@@ -86,7 +86,7 @@ export default function SchoolDetailPage() {
         <SiteHeader />
         <div className="max-w-6xl mx-auto px-4 py-16">
           <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-brand-primary"></div>
             <p className="mt-4 text-muted-foreground">Memuat data sekolah...</p>
           </div>
         </div>
@@ -226,7 +226,7 @@ export default function SchoolDetailPage() {
               <CardContent className="space-y-4">
                 {school.alamat && (
                   <div className="flex items-start gap-3">
-                    <MapPin className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <MapPin className="w-5 h-5 text-brand-accent mt-0.5 flex-shrink-0" />
                     <div>
                       <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Alamat</p>
                       <p className="text-sm text-gray-600 dark:text-gray-400">{school.alamat}</p>
@@ -239,10 +239,10 @@ export default function SchoolDetailPage() {
 
                 {school.telepon && (
                   <div className="flex items-start gap-3">
-                    <Phone className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <Phone className="w-5 h-5 text-brand-accent mt-0.5 flex-shrink-0" />
                     <div>
                       <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Telepon</p>
-                      <a href={`tel:${school.telepon}`} className="text-sm text-blue-600 hover:underline">
+                      <a href={`tel:${school.telepon}`} className="text-sm text-brand-accent hover:underline">
                         {school.telepon}
                       </a>
                     </div>
@@ -251,10 +251,10 @@ export default function SchoolDetailPage() {
 
                 {school.email && (
                   <div className="flex items-start gap-3">
-                    <Mail className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <Mail className="w-5 h-5 text-brand-accent mt-0.5 flex-shrink-0" />
                     <div>
                       <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Email</p>
-                      <a href={`mailto:${school.email}`} className="text-sm text-blue-600 hover:underline break-all">
+                      <a href={`mailto:${school.email}`} className="text-sm text-brand-accent hover:underline break-all">
                         {school.email}
                       </a>
                     </div>
@@ -263,7 +263,7 @@ export default function SchoolDetailPage() {
 
                 {school.tahunBerdiri && (
                   <div className="flex items-start gap-3">
-                    <Calendar className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <Calendar className="w-5 h-5 text-brand-accent mt-0.5 flex-shrink-0" />
                     <div>
                       <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Tahun Berdiri</p>
                       <p className="text-sm text-gray-600 dark:text-gray-400">{school.tahunBerdiri}</p>

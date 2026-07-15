@@ -29,6 +29,7 @@ import { SiteHeader } from "@/components/site-header";
 import { useState } from "react";
 import { notFound } from "next/navigation";
 import SocialMediaLinks from "@/components/SocialMediaLinks";
+import { SirediLogo } from "@/components/siredi-logo";
 
 const activityDetails = {
   "mengamati-dan-mengalisis-sitem-informasi-yang-sudah-ada": {
@@ -265,7 +266,7 @@ export default function ActivityDetailPage({
       </div>
 
       {/* Activity Header */}
-      <section className="py-16 bg-gradient-to-r from-blue-600 to-blue-800 text-white">
+      <section className="py-16 bg-gradient-to-r from-brand-header to-brand-primary text-white">
         <div className="container mx-auto px-4">
           <ScrollReveal animation="fade-up" delay={0} duration={800}>
             <div className="flex items-center space-x-4 mb-6">
@@ -400,7 +401,7 @@ export default function ActivityDetailPage({
                 <ul className="space-y-4">
                   {activity.objectives.map((objective, index) => (
                     <li key={index} className="flex items-start space-x-3">
-                      <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <div className="w-6 h-6 bg-brand-light-bg text-brand-accent rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                         <CheckCircle className="w-4 h-4" />
                       </div>
                       <span className="text-muted-foreground leading-relaxed">
@@ -416,19 +417,12 @@ export default function ActivityDetailPage({
       </section>
 
       {/* Footer - Consistent with main page */}
-      <footer className="bg-blue-900 text-white py-12">
+      <footer className="bg-brand-footer text-white py-12">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {/* Column 1: Logo and Mission */}
             <div>
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <School className="w-6 h-6 text-white" />
-                </div>
-                <span className="text-xl font-bold text-white">
-                  SIREDI (Sistem Reservasi Dinas Pendidikan dan Informasi)
-                </span>
-              </div>
+              <SirediLogo size="sm" variant="light" href={null} />
               <p className="text-blue-200 leading-relaxed">
                 Membangun masa depan pendidikan Banjarmasin melalui inovasi,
                 kolaborasi, dan komitmen untuk mencerdaskan generasi bangsa.

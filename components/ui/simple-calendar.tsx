@@ -10,9 +10,17 @@ interface SimpleCalendarProps {
   onSelect?: (date: Date) => void
   disabled?: (date: Date) => boolean
   className?: string
+  /** embedded = tanpa border/shadow sendiri, dipakai di dalam kotak langkah reservasi */
+  variant?: "default" | "embedded"
 }
 
-export function SimpleCalendar({ selected, onSelect, disabled, className }: SimpleCalendarProps) {
+export function SimpleCalendar({
+  selected,
+  onSelect,
+  disabled,
+  className,
+  variant = "default",
+}: SimpleCalendarProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date())
 
   const today = new Date()
@@ -75,20 +83,28 @@ export function SimpleCalendar({ selected, onSelect, disabled, className }: Simp
     return disabled ? disabled(date) : false
   }
 
+  const isEmbedded = variant === "embedded"
+
   return (
-    <div className={cn("w-full max-w-sm bg-background border border-border rounded-lg shadow-lg p-4", className)}>
+    <div
+      className={cn(
+        "w-full",
+        !isEmbedded && "bg-background border border-border rounded-xl shadow-lg p-4 sm:p-5",
+        className,
+      )}
+    >
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <Button
           variant="outline"
           size="sm"
           onClick={goToPreviousMonth}
-          className="h-8 w-8 p-0"
+          className="h-9 w-9 sm:h-10 sm:w-10 p-0"
         >
-          <ChevronLeft className="h-4 w-4" />
+          <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
         </Button>
         
-        <h2 className="text-lg font-semibold text-foreground">
+        <h2 className="text-base sm:text-lg font-semibold text-foreground">
           {monthNames[month]} {year}
         </h2>
         
@@ -96,18 +112,18 @@ export function SimpleCalendar({ selected, onSelect, disabled, className }: Simp
           variant="outline"
           size="sm"
           onClick={goToNextMonth}
-          className="h-8 w-8 p-0"
+          className="h-9 w-9 sm:h-10 sm:w-10 p-0"
         >
-          <ChevronRight className="h-4 w-4" />
+          <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
         </Button>
       </div>
 
       {/* Day names header */}
-      <div className="grid grid-cols-7 gap-1 mb-2">
+      <div className="grid grid-cols-7 gap-1 sm:gap-1.5 mb-2">
         {dayNames.map((dayName) => (
           <div
             key={dayName}
-            className="text-center text-sm font-medium text-muted-foreground py-2"
+            className="text-center text-xs sm:text-sm font-medium text-muted-foreground py-2"
           >
             {dayName}
           </div>
@@ -115,12 +131,12 @@ export function SimpleCalendar({ selected, onSelect, disabled, className }: Simp
       </div>
 
       {/* Calendar grid */}
-      <div className="grid grid-cols-7 gap-1">
+      <div className="grid grid-cols-7 gap-1 sm:gap-1.5">
         {days.map((date, index) => (
           <div
             key={index}
             className={cn(
-              "aspect-square flex items-center justify-center text-sm cursor-pointer rounded-md transition-colors",
+              "aspect-square min-h-[2.25rem] sm:min-h-[2.5rem] flex items-center justify-center text-sm sm:text-base cursor-pointer rounded-md transition-colors",
               !date && "invisible",
               date && isSelected(date) && "bg-primary text-primary-foreground font-bold",
               date && !isSelected(date) && !isDisabled(date) && "hover:bg-accent hover:text-accent-foreground",

@@ -239,11 +239,11 @@ export function AgendaForm({ formData, setFormData, onSubmit, onCancel, initialI
               accept="image/jpeg,image/jpg,image/png,image/webp"
               onChange={handleFileChange}
               disabled={uploading}
-              className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-brand-text-navy hover:file:bg-blue-100"
             />
             {uploading && (
-              <div className="text-sm text-blue-600 flex items-center gap-2">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+              <div className="text-sm text-brand-accent flex items-center gap-2">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-brand-primary"></div>
                 Mengupload...
               </div>
             )}
@@ -297,7 +297,7 @@ export function AgendaForm({ formData, setFormData, onSubmit, onCancel, initialI
         <Button type="button" variant="outline" onClick={onCancel}>
           Batal
         </Button>
-        <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+        <Button type="submit" className="bg-brand-primary hover:bg-brand-accent-hover">
           Simpan Agenda
         </Button>
       </div>

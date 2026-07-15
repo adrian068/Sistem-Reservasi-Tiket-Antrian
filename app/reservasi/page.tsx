@@ -2,16 +2,13 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Calendar } from "@/components/ui/calendar"
 import { SimpleCalendar } from "@/components/ui/simple-calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { CalendarIcon, Clock, Users, GraduationCap, Baby, School, Menu, Printer } from "lucide-react"
 import { format } from "date-fns"
 import { id } from "date-fns/locale"
@@ -29,6 +26,7 @@ import { SirediPageBackground } from "@/components/siredi-page-background"
 import { isTimeSlotPassed, isSlotSelectable } from "@/lib/reservation-hours"
 import { getTimeSlotsForDay } from "@/lib/time-slots"
 import { TimeSlotColumns, type TimeSlotOption } from "@/components/time-slot-columns"
+import { useTimeSlotSync } from "@/hooks/use-time-slot-sync"
 import {
   getDefaultLayananDisplay,
   layanansToDisplay,
@@ -65,7 +63,9 @@ const getTimeSlots = async (
       service,
     })
     if (idLayanan) params.set("idLayanan", idLayanan)
-    const response = await fetch(`/api/time-slots?${params.toString()}`)
+    const response = await fetch(`/api/time-slots?${params.toString()}`, {
+      cache: "no-store",
+    })
     if (!response.ok) {
       throw new Error('Failed to fetch time slots')
     }
@@ -98,7 +98,6 @@ interface ReservationData {
 export default function ReservasiPage() {
   const [step, setStep] = useState(1)
   const [selectedDate, setSelectedDate] = useState<Date>()
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false)
   const [reservationData, setReservationData] = useState<ReservationData>({
     service: "",
     idLayanan: "",
@@ -201,39 +200,64 @@ export default function ReservasiPage() {
     setStep(4)
   }
 
-  const loadTimeSlots = async (date: Date, idLayanan: string, service: string) => {
-    setIsLoadingTimeSlots(true)
-    try {
-      const slots = await getTimeSlots(date, idLayanan, service)
-      setTimeSlots(slots)
-      return slots as TimeSlotOption[]
-    } catch (error) {
-      console.error('Error loading time slots:', error)
-      setTimeSlots([])
-      return [] as TimeSlotOption[]
-    } finally {
-      setIsLoadingTimeSlots(false)
+  const loadTimeSlots = useCallback(
+    async (date: Date, idLayanan: string, service: string, silent = false) => {
+      if (!silent) setIsLoadingTimeSlots(true)
+      try {
+        const slots = await getTimeSlots(date, idLayanan, service)
+        setTimeSlots(slots)
+        return slots as TimeSlotOption[]
+      } catch (error) {
+        console.error("Error loading time slots:", error)
+        setTimeSlots([])
+        return [] as TimeSlotOption[]
+      } finally {
+        if (!silent) setIsLoadingTimeSlots(false)
+      }
+    },
+    [],
+  )
+
+  const refreshTimeSlots = useCallback(() => {
+    if (!selectedDate || !reservationData.service) return Promise.resolve()
+    return loadTimeSlots(
+      selectedDate,
+      reservationData.idLayanan,
+      reservationData.service,
+      true,
+    )
+  }, [selectedDate, reservationData.idLayanan, reservationData.service, loadTimeSlots])
+
+  useTimeSlotSync({
+    enabled: step === 3 && !!selectedDate && !!reservationData.service,
+    onRefresh: refreshTimeSlots,
+  })
+
+  const handleSlotSelect = async (slotId: string) => {
+    if (!selectedDate) return
+
+    const slots = await loadTimeSlots(
+      selectedDate,
+      reservationData.idLayanan,
+      reservationData.service,
+      true,
+    )
+    const slot = slots.find((s) => s.id === slotId)
+    if (!slot || !isSlotSelectable(slot, selectedDate)) {
+      alert("Slot waktu sudah penuh atau tidak tersedia. Silakan pilih waktu lain.")
+      setReservationData((prev) => ({ ...prev, timeSlot: "" }))
+      return
     }
+
+    setReservationData((prev) => ({ ...prev, timeSlot: slotId }))
   }
 
-  // Muat ulang slot + cek waktu lewat (WITA) saat langkah pemilihan waktu
+  // Cek waktu lewat (WITA) setiap menit saat langkah pemilihan waktu
   useEffect(() => {
-    if (step !== 3 || !selectedDate || !reservationData.service) return
-
-    const refresh = () => {
-      void loadTimeSlots(selectedDate, reservationData.idLayanan, reservationData.service)
-    }
-
-    refresh()
-    const poll = setInterval(refresh, 15000)
+    if (step !== 3) return
     const clock = setInterval(() => setTimeSlotTick((t) => t + 1), 60000)
-
-    return () => {
-      clearInterval(poll)
-      clearInterval(clock)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step, selectedDate, reservationData.idLayanan, reservationData.service])
+    return () => clearInterval(clock)
+  }, [step])
 
   // Kosongkan pilihan jika slot sudah penuh atau lewat
   useEffect(() => {
@@ -350,7 +374,6 @@ export default function ReservasiPage() {
   const resetForm = () => {
     setStep(1)
     setSelectedDate(undefined)
-    setIsCalendarOpen(false)
     setReservationData({
       service: "",
       idLayanan: "",
@@ -400,7 +423,7 @@ export default function ReservasiPage() {
 
         {step <= RESERVATION_TOTAL_STEPS && (
           <ScrollReveal animation="fade-up" delay={100}>
-            <div className="mb-6 sm:mb-8 rounded-2xl border border-white/20 bg-white/10 backdrop-blur-md px-4 py-5 sm:px-6 sm:py-6">
+            <div className="mb-6 sm:mb-8 rounded-2xl border border-brand-border-light bg-brand-hero/95 px-4 py-5 sm:px-6 sm:py-6 shadow-sm">
               <ReservationStepIndicator currentStep={step} />
             </div>
           </ScrollReveal>
@@ -410,8 +433,8 @@ export default function ReservasiPage() {
         {step === 1 && (
           <ScrollReveal animation="fade-up" delay={200}>
             <Card className="shadow-lg border-0 bg-white dark:bg-card">
-              <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950/40 dark:to-blue-900/40 p-4 sm:p-6">
-                <CardTitle className="text-center text-xl sm:text-2xl text-blue-700 dark:text-blue-300">
+              <CardHeader className="bg-gradient-to-r from-brand-light-bg to-brand-hero dark:from-brand-header-dark/40 dark:to-brand-header/40 p-4 sm:p-6">
+                <CardTitle className="text-center text-xl sm:text-2xl text-brand-text-navy dark:text-brand-light">
                   Pilih Layanan
                 </CardTitle>
                 <p className="text-center text-sm sm:text-base text-muted-foreground">
@@ -421,7 +444,7 @@ export default function ReservasiPage() {
               <CardContent className="p-4 sm:p-8 bg-white dark:bg-card">
                 {isLoadingServices ? (
                   <div className="flex justify-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary"></div>
                   </div>
                 ) : services.length === 0 ? (
                   <p className="text-center text-muted-foreground py-8">
@@ -434,7 +457,7 @@ export default function ReservasiPage() {
                     return (
                       <Card
                         key={service.id}
-                          className="cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-105 border-2 hover:border-blue-400 group bg-white dark:bg-card touch-manipulation"
+                          className="cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-105 border-2 hover:border-brand-accent group bg-brand-light/50 dark:bg-card touch-manipulation"
                           onClick={() => handleServiceSelect(service.id, service.name)}
                       >
                           <CardContent className="p-4 sm:p-6 text-center bg-white dark:bg-card">
@@ -446,7 +469,7 @@ export default function ReservasiPage() {
                           >
                             <Icon className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                           </div>
-                          <h3 className="font-semibold text-base sm:text-lg mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors text-foreground">
+                          <h3 className="font-semibold text-base sm:text-lg mb-2 group-hover:text-brand-accent dark:group-hover:text-brand-light transition-colors text-foreground">
                             {service.name}
                           </h3>
                           <p className="text-xs sm:text-sm text-muted-foreground">{service.description}</p>
@@ -465,60 +488,45 @@ export default function ReservasiPage() {
         {step === 2 && (
           <ScrollReveal animation="fade-up" delay={200}>
             <Card className="shadow-lg border-0 bg-white dark:bg-card">
-              <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950/40 dark:to-blue-900/40 p-4 sm:p-6">
-                <CardTitle className="text-center text-xl sm:text-2xl text-blue-700 dark:text-blue-300">
+              <CardHeader className="bg-gradient-to-r from-brand-light-bg to-brand-hero dark:from-brand-header-dark/40 dark:to-brand-header/40 p-4 sm:p-6">
+                <CardTitle className="text-center text-xl sm:text-2xl text-brand-text-navy dark:text-brand-light">
                   Pilih Tanggal
                 </CardTitle>
                 <p className="text-center text-sm sm:text-base text-muted-foreground">
                   Layanan:{" "}
-                  <span className="font-semibold text-blue-600 dark:text-blue-400">{selectedService?.name}</span>
+                  <span className="font-semibold text-brand-accent dark:text-brand-light">{selectedService?.name}</span>
                 </p>
               </CardHeader>
-              <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-8 bg-card dark:bg-card">
-                <div className="relative">
+              <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-8 bg-white dark:bg-card">
+                <div className="w-full">
                   <Label className="text-sm sm:text-base font-medium text-foreground">Pilih Tanggal Kunjungan</Label>
+                  <p className="text-xs text-muted-foreground mt-1 mb-2">
+                    Pilih hari kerja (Senin–Jumat). Sabtu dan Minggu tidak tersedia.
+                  </p>
 
-                  <div className="hidden sm:block relative">
-                    <Dialog open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-                      <DialogTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            "w-full justify-start text-left font-normal mt-2 h-10 sm:h-12 bg-background dark:bg-background border-input dark:border-input text-sm sm:text-base touch-manipulation",
-                            !selectedDate && "text-muted-foreground",
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {selectedDate ? format(selectedDate, "PPP", { locale: id }) : "Pilih tanggal"}
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="w-auto p-0 bg-background border-border max-w-fit">
-                        <DialogHeader className="px-6 pt-6 pb-2">
-                          <DialogTitle>Pilih Tanggal</DialogTitle>
-                        </DialogHeader>
-                        <div className="px-6 pb-6">
-                          <SimpleCalendar
-                            selected={selectedDate}
-                            onSelect={(date) => {
-                              setSelectedDate(date)
-                              setReservationData({ ...reservationData, date: date, timeSlot: "" })
-                              setIsCalendarOpen(false)
-                            }}
-                            disabled={(date) => {
-                              const today = new Date()
-                              today.setHours(0, 0, 0, 0)
-                              if (date < today) return true
-                              const dayOfWeek = date.getDay()
-                              return dayOfWeek === 0 || dayOfWeek === 6
-                            }}
-                          />
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                  </div>
+                  <div
+                    className={cn(
+                      "w-full rounded-xl border-2 p-3 sm:p-4 min-h-[240px] sm:min-h-[280px]",
+                      "border-brand-border-light bg-brand-light/80",
+                      "dark:border-brand-header-dark dark:bg-brand-header-dark/30",
+                    )}
+                  >
+                    <div className="flex items-start gap-2.5 mb-3 pb-2.5 border-b border-black/5 dark:border-white/10">
+                      <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg flex items-center justify-center shrink-0 bg-brand-primary/15 text-brand-text-navy dark:text-brand-light">
+                        <CalendarIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-semibold text-sm sm:text-base text-foreground">Kalender Kunjungan</p>
+                        <p className="text-xs sm:text-sm font-medium text-muted-foreground">
+                          {selectedDate
+                            ? format(selectedDate, "EEEE, d MMMM yyyy", { locale: id })
+                            : "Belum ada tanggal dipilih"}
+                        </p>
+                      </div>
+                    </div>
 
-                  <div className="sm:hidden">
                     <SimpleCalendar
+                      variant="embedded"
                       selected={selectedDate}
                       onSelect={(date) => {
                         setSelectedDate(date)
@@ -531,10 +539,10 @@ export default function ReservasiPage() {
                         const dayOfWeek = date.getDay()
                         return dayOfWeek === 0 || dayOfWeek === 6
                       }}
-                      className="mt-2"
                     />
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">
+
+                  <p className="text-xs text-muted-foreground mt-2">
                     *Layanan tidak tersedia pada hari Sabtu dan Minggu
                   </p>
                   {selectedDate && selectedDate.getDay() === 5 && (
@@ -543,7 +551,7 @@ export default function ReservasiPage() {
                     </p>
                   )}
                   {selectedDate && selectedDate.getDay() >= 1 && selectedDate.getDay() <= 4 && (
-                    <p className="text-xs text-blue-600 dark:text-blue-400 mt-1 font-medium">
+                    <p className="text-xs text-brand-accent dark:text-brand-light mt-1 font-medium">
                       *Istirahat siang: 12:00 - 14:00 (layanan tutup)
                     </p>
                   )}
@@ -560,7 +568,7 @@ export default function ReservasiPage() {
                   <Button
                     onClick={handleDateContinue}
                     disabled={!selectedDate}
-                    className="w-full sm:flex-1 h-10 sm:h-12 bg-blue-600 hover:bg-blue-700 touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full sm:flex-1 h-10 sm:h-12 bg-brand-primary hover:bg-brand-accent-hover touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Lanjutkan
                   </Button>
@@ -574,8 +582,8 @@ export default function ReservasiPage() {
         {step === 3 && (
           <ScrollReveal animation="fade-up" delay={200}>
             <Card className="shadow-lg border-0 bg-white dark:bg-card">
-              <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950/40 dark:to-blue-900/40 p-4 sm:p-6">
-                <CardTitle className="text-center text-xl sm:text-2xl text-blue-700 dark:text-blue-300">
+              <CardHeader className="bg-gradient-to-r from-brand-light-bg to-brand-hero dark:from-brand-header-dark/40 dark:to-brand-header/40 p-4 sm:p-6">
+                <CardTitle className="text-center text-xl sm:text-2xl text-brand-text-navy dark:text-brand-light">
                   Pilih Slot Waktu
                 </CardTitle>
                 <p className="text-center text-sm sm:text-base text-muted-foreground">
@@ -584,20 +592,20 @@ export default function ReservasiPage() {
                     <>
                       {" "}
                       ·{" "}
-                      <span className="font-semibold text-blue-600 dark:text-blue-400">
+                      <span className="font-semibold text-brand-accent dark:text-brand-light">
                         {format(selectedDate, "EEEE, d MMMM yyyy", { locale: id })}
                       </span>
                     </>
                   )}
                 </p>
               </CardHeader>
-              <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-8 bg-card dark:bg-card">
+              <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-8 bg-white dark:bg-card">
                 <div>
                   <Label className="text-sm sm:text-base font-medium text-foreground">Pilih Waktu</Label>
                   <p className="text-xs text-muted-foreground mt-1 mb-2">
                     Pilih kolom sesuai kebutuhan: pertemuan singkat (10–15 menit) atau standar (15–25 menit).
-                    Sisa kuota per slot diperbarui otomatis. Slot penuh atau waktu yang sudah lewat (WITA) tidak
-                    dapat dipilih.
+                    Kuota slot diperbarui otomatis setiap beberapa detik — admin dan pengguna lain langsung melihat
+                    perubahan. Slot penuh atau waktu yang sudah lewat (WITA) tidak dapat dipilih.
                   </p>
                   {isLoadingTimeSlots ? (
                     <div className="flex items-center justify-center py-8">
@@ -623,9 +631,7 @@ export default function ReservasiPage() {
                       slots={timeSlots}
                       selectedSlotId={reservationData.timeSlot}
                       selectedDate={selectedDate}
-                      onSelect={(slotId) =>
-                        setReservationData({ ...reservationData, timeSlot: slotId })
-                      }
+                      onSelect={handleSlotSelect}
                     />
                   )}
                 </div>
@@ -641,7 +647,7 @@ export default function ReservasiPage() {
                   <Button
                     onClick={handleTimeContinue}
                     disabled={!reservationData.timeSlot}
-                    className="w-full sm:flex-1 h-10 sm:h-12 bg-blue-600 hover:bg-blue-700 touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full sm:flex-1 h-10 sm:h-12 bg-brand-primary hover:bg-brand-accent-hover touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Lanjutkan
                   </Button>
@@ -655,8 +661,8 @@ export default function ReservasiPage() {
         {step === 4 && (
           <ScrollReveal animation="fade-up" delay={200}>
             <Card className="shadow-lg border-0 bg-white dark:bg-card">
-              <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950/40 dark:to-blue-900/40 p-4 sm:p-6">
-                <CardTitle className="text-center text-xl sm:text-2xl text-blue-700 dark:text-blue-300">
+              <CardHeader className="bg-gradient-to-r from-brand-light-bg to-brand-hero dark:from-brand-header-dark/40 dark:to-brand-header/40 p-4 sm:p-6">
+                <CardTitle className="text-center text-xl sm:text-2xl text-brand-text-navy dark:text-brand-light">
                   Data Diri
                 </CardTitle>
                 <p className="text-center text-sm sm:text-base text-muted-foreground">
@@ -724,8 +730,8 @@ export default function ReservasiPage() {
                   </div>
 
                   {/* Summary */}
-                  <div className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950/20 dark:to-blue-900/20 p-4 sm:p-6 rounded-lg border border-blue-200/50 dark:border-blue-800/50">
-                    <h4 className="font-semibold mb-3 text-blue-700 dark:text-blue-300 text-sm sm:text-base">
+                  <div className="bg-gradient-to-r from-brand-light-bg to-brand-hero dark:from-brand-header-dark/20 dark:to-brand-header/20 p-4 sm:p-6 rounded-lg border border-brand-border-light/50 dark:border-brand-header-dark/50">
+                    <h4 className="font-semibold mb-3 text-brand-text-navy dark:text-brand-light text-sm sm:text-base">
                       Ringkasan Reservasi:
                     </h4>
                     <div className="text-xs sm:text-sm space-y-2 text-foreground">
@@ -759,7 +765,7 @@ export default function ReservasiPage() {
                     </Button>
                     <Button
                       type="submit"
-                      className="w-full sm:flex-1 h-10 sm:h-12 bg-blue-600 hover:bg-blue-700 touch-manipulation"
+                      className="w-full sm:flex-1 h-10 sm:h-12 bg-brand-primary hover:bg-brand-accent-hover touch-manipulation"
                     >
                       Buat Reservasi
                     </Button>
@@ -787,7 +793,7 @@ export default function ReservasiPage() {
                   onClick={handlePrint}
                   disabled={isGeneratingPDF}
                   variant="outline"
-                  className="w-full sm:flex-1 h-11 sm:h-12 border-[#93c5fd] text-[#2563eb] hover:bg-[#eff6ff] touch-manipulation disabled:opacity-50"
+                  className="w-full sm:flex-1 h-11 sm:h-12 border-brand-border-light text-brand-accent hover:bg-brand-light-bg touch-manipulation disabled:opacity-50"
                   size="lg"
                 >
                   <Printer className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
@@ -795,7 +801,7 @@ export default function ReservasiPage() {
                 </Button>
                 <Button
                   onClick={resetForm}
-                  className="w-full sm:flex-1 h-11 sm:h-12 bg-[#2563eb] hover:bg-[#1d4ed8] touch-manipulation"
+                  className="w-full sm:flex-1 h-11 sm:h-12 bg-brand-accent hover:bg-brand-accent-hover touch-manipulation"
                   size="lg"
                 >
                   Buat Baru

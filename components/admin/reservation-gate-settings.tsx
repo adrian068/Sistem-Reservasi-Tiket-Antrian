@@ -146,14 +146,14 @@ export function ReservationGateSettings() {
                     className={cn(
                       "text-left p-4 rounded-lg border-2 transition-all",
                       active
-                        ? "border-blue-600 bg-blue-50 dark:bg-blue-950/40"
+                        ? "border-brand-primary bg-blue-50 dark:bg-blue-950/40"
                         : "border-border hover:border-blue-300",
                     )}
                   >
                     <Icon
                       className={cn(
                         "w-5 h-5 mb-2",
-                        active ? "text-blue-600" : "text-muted-foreground",
+                        active ? "text-brand-accent" : "text-muted-foreground",
                       )}
                     />
                     <div className="font-medium text-sm">{opt.label}</div>
@@ -196,7 +196,7 @@ export function ReservationGateSettings() {
               <p className="text-sm text-green-600 dark:text-green-400">{success}</p>
             )}
 
-            <Button onClick={handleSave} disabled={saving} className="bg-blue-600 hover:bg-blue-700">
+            <Button onClick={handleSave} disabled={saving} className="bg-brand-primary hover:bg-brand-accent-hover">
               {saving ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />

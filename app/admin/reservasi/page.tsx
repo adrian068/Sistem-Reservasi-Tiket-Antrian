@@ -42,6 +42,7 @@ import { ReservationTimeSettings } from "@/components/admin/reservation-time-set
 import { BidangPresencePanel } from "@/components/admin/bidang-presence-panel"
 import { buildAdminNavigation } from "@/lib/admin-navigation"
 import { AdminModeSwitch } from "@/components/admin-mode-switch"
+import { AdminSidebarBrand } from "@/components/admin-sidebar-brand"
 import { getTimeSlotsForDateString } from "@/lib/time-slots"
 
 interface Layanan {
@@ -422,10 +423,7 @@ export default function AdminReservationsPage() {
         {/* Logo */}
         <div className="p-4 border-b border-sidebar-border">
           <div className={`flex items-center ${sidebarCollapsed ? 'justify-center' : 'space-x-3'}`}>
-            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
-              <School className="w-6 h-6 text-white" />
-            </div>
-            {!sidebarCollapsed && <span className="text-xl font-bold">SIREDI Admin</span>}
+            <AdminSidebarBrand collapsed={sidebarCollapsed} />
           </div>
         </div>
 
@@ -445,7 +443,7 @@ export default function AdminReservationsPage() {
                       sidebarCollapsed ? 'justify-center' : 'space-x-3'
                     } ${
                       item.active
-                        ? "bg-blue-600 text-white shadow-lg"
+                        ? "bg-brand-primary text-white shadow-lg"
                         : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-md"
                     }`}
                     title={sidebarCollapsed ? item.label : undefined}
@@ -513,7 +511,7 @@ export default function AdminReservationsPage() {
                   className="hover:bg-accent hover:scale-105 transition-all duration-200 user-menu-button"
                   onClick={() => setShowUserMenu(!showUserMenu)}
                 >
-                  <div className="w-6 h-6 lg:w-8 lg:h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                  <div className="w-6 h-6 lg:w-8 lg:h-8 bg-brand-primary rounded-full flex items-center justify-center">
                     <span className="text-xs lg:text-sm font-medium text-white">A</span>
                   </div>
                   <ChevronDown className="w-3 h-3 lg:w-4 lg:h-4 ml-1 lg:ml-2" />
@@ -575,19 +573,19 @@ export default function AdminReservationsPage() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-base font-bold text-blue-600 mb-1">PTK</p>
-                      <p className="text-2xl font-bold text-blue-600">
+                      <p className="text-base font-bold text-brand-accent mb-1">PTK</p>
+                      <p className="text-2xl font-bold text-brand-accent">
                         {reservations.filter(r => getServiceKey(r) === 'ptk' && r.status === 'waiting').length}
                       </p>
                       <p className="text-xs text-gray-500">Menunggu</p>
                     </div>
                     <div className="bg-blue-100 p-3 rounded-lg admin-icon-hover">
-                      <User className="w-6 h-6 text-blue-600" />
+                      <User className="w-6 h-6 text-brand-accent" />
                     </div>
                   </div>
                   <Button
                     size="sm"
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                    className="w-full bg-brand-primary hover:bg-brand-accent-hover text-white"
                     onClick={() => {
                       const nextWaiting = reservations
                         .filter(r => getServiceKey(r) === 'ptk' && r.status === 'waiting')
@@ -793,7 +791,7 @@ export default function AdminReservationsPage() {
             {loading ? (
               <div className="flex items-center justify-center py-12">
                 <div className="text-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary mx-auto mb-4"></div>
                   <div className="text-muted-foreground">Memuat data...</div>
                 </div>
               </div>
@@ -819,7 +817,7 @@ export default function AdminReservationsPage() {
                         <div className="flex items-start justify-between mb-4">
                           <div>
                             <p className="text-xs text-muted-foreground mb-1">No. Tiket</p>
-                            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                            <p className="text-2xl font-bold text-brand-accent dark:text-brand-light">
                               {reservation.queueNumber}
                             </p>
                           </div>
@@ -879,7 +877,7 @@ export default function AdminReservationsPage() {
                           <Button
                             size="sm"
                             variant="outline"
-                            className="w-full text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950"
+                            className="w-full text-brand-accent hover:text-brand-accent-hover hover:bg-blue-50 dark:hover:bg-blue-950"
                             onClick={() => handleViewDetails(reservation)}
                           >
                             <Eye className="w-4 h-4 mr-1" />
@@ -967,7 +965,7 @@ export default function AdminReservationsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label className="text-sm font-medium text-muted-foreground">No. Tiket</Label>
-                  <p className="text-lg font-semibold text-blue-600">{selectedReservation.queueNumber}</p>
+                  <p className="text-lg font-semibold text-brand-accent">{selectedReservation.queueNumber}</p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium text-muted-foreground">Status</Label>
@@ -1037,7 +1035,7 @@ export default function AdminReservationsPage() {
                   <div className="flex gap-2">
                     <Button
                       onClick={() => handleStatusUpdate(selectedReservation.id, "called")}
-                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                      className="bg-brand-primary hover:bg-brand-accent-hover text-white"
                     >
                       Panggil
                     </Button>

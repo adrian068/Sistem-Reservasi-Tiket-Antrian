@@ -56,18 +56,18 @@ export default function SuperAdminDashboardPage() {
     >
       {loading ? (
         <div className="flex justify-center py-20">
-          <Loader2 className="w-10 h-10 animate-spin text-violet-600" />
+          <Loader2 className="w-10 h-10 animate-spin text-brand-accent" />
         </div>
       ) : (
         <div className="space-y-8">
-          <div className="rounded-2xl border border-violet-200 dark:border-violet-800 bg-gradient-to-r from-violet-600 to-indigo-700 p-6 text-white shadow-lg">
+          <div className="rounded-2xl border border-brand-border-light dark:border-brand-header-dark bg-gradient-to-r from-brand-header to-brand-primary p-6 text-white shadow-lg">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
                 <Crown className="w-7 h-7" />
               </div>
               <div>
                 <h2 className="text-xl font-bold">Pusat Kendali Super Admin</h2>
-                <p className="text-violet-100 text-sm mt-1 max-w-2xl">
+                <p className="text-blue-100 text-sm mt-1 max-w-2xl">
                   Dari halaman ini Anda mengatur admin, memantau reservasi, dan
                   mengontrol buka/tutup layanan reservasi publik.
                 </p>
@@ -79,9 +79,9 @@ export default function SuperAdminDashboardPage() {
             {stats.map((stat) => {
               const Icon = stat.icon
               return (
-                <Card key={stat.label} className="border-violet-100 dark:border-violet-900/50">
+                <Card key={stat.label} className="border-brand-border-light dark:border-brand-header-dark/50">
                   <CardContent className="pt-4 pb-4">
-                    <Icon className="w-5 h-5 text-violet-600 mb-2" />
+                    <Icon className="w-5 h-5 text-brand-accent mb-2" />
                     <p className="text-2xl font-bold">{stat.value}</p>
                     <p className="text-xs text-muted-foreground">{stat.label}</p>
                   </CardContent>
@@ -101,12 +101,12 @@ export default function SuperAdminDashboardPage() {
                 return (
                   <Card
                     key={cap.id}
-                    className="overflow-hidden border-violet-100 dark:border-violet-900/40 hover:shadow-md transition-shadow"
+                    className="overflow-hidden border-brand-border-light dark:border-brand-header-dark/40 hover:shadow-md transition-shadow"
                   >
                     <CardHeader className="pb-2">
                       <div className="flex items-start gap-3">
-                        <div className="w-11 h-11 rounded-xl bg-violet-100 dark:bg-violet-950 flex items-center justify-center shrink-0">
-                          <Icon className="w-5 h-5 text-violet-600" />
+                        <div className="w-11 h-11 rounded-xl bg-brand-light-bg dark:bg-brand-header-dark/40 flex items-center justify-center shrink-0">
+                          <Icon className="w-5 h-5 text-brand-accent" />
                         </div>
                         <div className="min-w-0 flex-1">
                           <CardTitle className="text-base">{cap.title}</CardTitle>
@@ -130,7 +130,7 @@ export default function SuperAdminDashboardPage() {
                       </ul>
                       <Button
                         asChild
-                        className="w-full bg-violet-600 hover:bg-violet-700"
+                        className="w-full bg-brand-primary hover:bg-brand-accent-hover"
                         size="sm"
                       >
                         <Link href={cap.href}>

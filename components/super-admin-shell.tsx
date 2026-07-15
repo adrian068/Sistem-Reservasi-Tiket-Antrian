@@ -19,7 +19,7 @@ export function SuperAdminShell({ title, subtitle, children }: SuperAdminShellPr
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
-    <div className="min-h-screen flex bg-slate-100 dark:bg-slate-950">
+    <div className="min-h-screen flex bg-brand-light/30 dark:bg-slate-950">
       <SuperAdminSidebar
         sidebarCollapsed={sidebarCollapsed}
         mobileMenuOpen={mobileMenuOpen}
@@ -27,7 +27,7 @@ export function SuperAdminShell({ title, subtitle, children }: SuperAdminShellPr
       />
 
       <div className="flex-1 flex flex-col min-w-0 lg:ml-0">
-        <header className="sticky top-0 z-30 flex items-center justify-between gap-4 border-b border-violet-200/50 dark:border-violet-900/50 bg-white/90 dark:bg-slate-900/90 backdrop-blur px-4 py-3">
+        <header className="sticky top-0 z-30 flex items-center justify-between gap-4 border-b border-brand-border-light/50 dark:border-brand-header-dark/50 bg-white/90 dark:bg-slate-900/90 backdrop-blur px-4 py-3">
           <div className="flex items-center gap-3 min-w-0">
             <Button
               variant="ghost"

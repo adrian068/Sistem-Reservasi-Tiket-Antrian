@@ -1,8 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
-
-const LOGO_SRC = "/logo-disdik.png"
+import { LOGO_SRC } from "@/lib/brand"
 
 const sizes = {
   sm: { img: 36, text: "text-sm sm:text-base" },
@@ -47,7 +46,7 @@ export function SirediLogo({
           className={cn(
             "font-bold leading-tight",
             s.text,
-            variant === "light" ? "text-white" : "text-[#0f2d6b] dark:text-white",
+            variant === "light" ? "text-white" : "text-brand-text-navy dark:text-white",
             textClassName,
           )}
         >

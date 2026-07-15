@@ -31,25 +31,25 @@ export function ReservationStepIndicator({
   return (
     <div className={cn("w-full", className)}>
       <div className="text-center mb-4 sm:mb-5">
-        <p className="text-xs sm:text-sm font-medium text-blue-100/90 uppercase tracking-wider">
+        <p className="text-xs sm:text-sm font-medium text-brand-text uppercase tracking-wider">
           Proses Reservasi
         </p>
-        <p className="mt-1 text-lg sm:text-2xl font-bold text-white">
+        <p className="mt-1 text-lg sm:text-2xl font-bold text-brand-text-navy">
           Langkah {currentStep}{" "}
-          <span className="font-normal text-blue-100/80">
+          <span className="font-normal text-brand-primary">
             dari {RESERVATION_TOTAL_STEPS}
           </span>
         </p>
         {activeStep && (
-          <p className="mt-1 text-sm sm:text-base text-blue-50/90">
+          <p className="mt-1 text-sm sm:text-base text-brand-text">
             {activeStep.label}
           </p>
         )}
       </div>
 
-      <div className="mb-4 sm:mb-5 h-1.5 rounded-full bg-white/20 overflow-hidden">
+      <div className="mb-4 sm:mb-5 h-1.5 rounded-full bg-brand-light overflow-hidden">
         <div
-          className="h-full rounded-full bg-white transition-all duration-500 ease-out"
+          className="h-full rounded-full bg-brand-primary transition-all duration-500 ease-out"
           style={{ width: `${progressPercent}%` }}
         />
       </div>
@@ -67,12 +67,12 @@ export function ReservationStepIndicator({
             >
               <div
                 className={cn(
-                  "w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold transition-all duration-300 shrink-0",
+                  "w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 shrink-0",
                   isCompleted &&
-                    "bg-white text-blue-700 shadow-md",
+                    "bg-brand-light text-brand-text-navy shadow-sm",
                   isCurrent &&
-                    "bg-white text-blue-700 ring-4 ring-white/40 scale-110 shadow-lg",
-                  isUpcoming && "bg-white/20 text-white/70 border border-white/30",
+                    "bg-brand-primary text-white ring-4 ring-brand-light shadow-lg",
+                  isUpcoming && "bg-brand-light text-brand-text-navy border border-brand-border-light",
                 )}
               >
                 {isCompleted ? (
@@ -83,10 +83,10 @@ export function ReservationStepIndicator({
               </div>
               <span
                 className={cn(
-                  "mt-1.5 text-[10px] sm:text-xs font-medium text-center leading-tight max-w-[4.5rem] sm:max-w-none",
-                  isCurrent && "text-white font-semibold",
-                  isCompleted && "text-blue-50/90",
-                  isUpcoming && "text-white/50",
+                  "mt-1.5 text-xs sm:text-sm font-medium text-center leading-tight text-brand-text-navy",
+                  isCurrent && "font-semibold",
+                  isUpcoming && "opacity-70",
+                  isCompleted && "opacity-90",
                 )}
               >
                 {stepItem.shortLabel}

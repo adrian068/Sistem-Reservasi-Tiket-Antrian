@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { SirediLogo } from "@/components/siredi-logo"
 
 interface Reservation {
   id: string
@@ -16,7 +17,7 @@ interface Reservation {
 }
 
 const SERVICE_COLORS = {
-  ptk: { bg: 'bg-blue-600', text: 'text-blue-600', bgLight: 'bg-blue-50' },
+  ptk: { bg: 'bg-brand-primary', text: 'text-brand-primary', bgLight: 'bg-brand-light-bg' },
   sd: { bg: 'bg-green-600', text: 'text-green-600', bgLight: 'bg-green-50' },
   smp: { bg: 'bg-yellow-600', text: 'text-yellow-600', bgLight: 'bg-yellow-50' },
   paud: { bg: 'bg-purple-600', text: 'text-purple-600', bgLight: 'bg-purple-50' },
@@ -131,20 +132,23 @@ export default function DisplayAntrianPage() {
   }
 
   return (
-    <div className="h-screen overflow-hidden bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 p-1 sm:p-2 md:p-3 lg:p-4 flex flex-col">
+    <div className="h-screen overflow-hidden bg-gradient-to-br from-brand-light to-brand-hero dark:from-gray-900 dark:to-gray-800 p-1 sm:p-2 md:p-3 lg:p-4 flex flex-col">
       {/* Header - Compact untuk monitor */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-1.5 sm:p-2 md:p-2.5 lg:p-3 mb-1 sm:mb-2 flex-shrink-0">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-1.5 md:gap-2 lg:gap-3">
-          <div className="flex-1">
+          <div className="flex-1 flex items-center gap-3">
+            <SirediLogo size="sm" showText={false} href={null} imageClassName="w-8 h-8 sm:w-10 sm:h-10" />
+            <div>
             <h1 className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl 2xl:text-2xl font-bold text-foreground mb-0.5 sm:mb-1 leading-tight">
-              SIREDI (Sistem Reservasi Dinas Pendidikan dan Informasi)
+              Layar Antrian — Dinas Pendidikan Kota Banjarmasin
             </h1>
             <p className="text-xs sm:text-sm md:text-base lg:text-lg text-muted-foreground">
               Nomor Antrian Layanan
             </p>
+            </div>
           </div>
           <div className="text-center md:text-right flex-shrink-0">
-            <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl 2xl:text-5xl font-bold text-blue-600 dark:text-blue-400 leading-none" suppressHydrationWarning>
+            <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl 2xl:text-5xl font-bold text-brand-primary dark:text-brand-light leading-none" suppressHydrationWarning>
               {currentTime ? formatTime(currentTime) : '--:--:--'}
             </p>
             <p className="text-xs sm:text-xs md:text-sm lg:text-base text-muted-foreground mt-0.5" suppressHydrationWarning>

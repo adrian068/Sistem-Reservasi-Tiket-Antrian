@@ -12,8 +12,12 @@ const poppins = Poppins({
 })
 
 export const metadata: Metadata = {
-  title: "Reservasi SIREDI — Dinas Pendidikan Kota Banjarmasin",
-  description: "Sistem reservasi online Dinas Pendidikan Kota Banjarmasin",
+  title: "SIREDI — Dinas Pendidikan Kota Banjarmasin",
+  description: "Sistem Informasi Tiket Antrian dan Reservasi Online — Dinas Pendidikan Kota Banjarmasin",
+  icons: {
+    icon: "/logo-disdik.png",
+    apple: "/logo-disdik.png",
+  },
 }
 
 export default function RootLayout({

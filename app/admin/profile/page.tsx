@@ -22,6 +22,7 @@ import { useRouter } from "next/navigation"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { buildAdminNavigation } from "@/lib/admin-navigation"
 import { AdminModeSwitch } from "@/components/admin-mode-switch"
+import { AdminSidebarBrand } from "@/components/admin-sidebar-brand"
 
 interface ProfileData {
   id: string
@@ -193,7 +194,7 @@ export default function AdminProfilePage() {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-primary mx-auto mb-4"></div>
           <p className="text-muted-foreground">Memuat profil...</p>
         </div>
       </div>
@@ -228,10 +229,7 @@ export default function AdminProfilePage() {
         {/* Logo */}
         <div className="p-4 border-b border-sidebar-border">
           <div className={`flex items-center ${sidebarCollapsed ? 'justify-center' : 'space-x-3'}`}>
-            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
-              <School className="w-6 h-6 text-white" />
-            </div>
-            {!sidebarCollapsed && <span className="text-xl font-bold">SIREDI Admin</span>}
+            <AdminSidebarBrand collapsed={sidebarCollapsed} />
           </div>
         </div>
 
@@ -249,7 +247,7 @@ export default function AdminProfilePage() {
                     }}
                     className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center' : 'space-x-3'} p-3 rounded-lg transition-all duration-200 hover:scale-105 ${
                       item.active
-                        ? "bg-blue-600 text-white shadow-lg"
+                        ? "bg-brand-primary text-white shadow-lg"
                         : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-md"
                     }`}
                     title={sidebarCollapsed ? item.label : undefined}
@@ -315,7 +313,7 @@ export default function AdminProfilePage() {
                   className="hover:bg-accent hover:scale-105 transition-all duration-200 user-menu-button"
                   onClick={() => setShowUserMenu(!showUserMenu)}
                 >
-                  <div className="w-6 h-6 lg:w-8 lg:h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                  <div className="w-6 h-6 lg:w-8 lg:h-8 bg-brand-primary rounded-full flex items-center justify-center">
                     <span className="text-xs lg:text-sm font-medium text-white">
                       {profile?.nama?.charAt(0)?.toUpperCase() || 'A'}
                     </span>
@@ -528,7 +526,7 @@ export default function AdminProfilePage() {
                 type="submit"
                 onClick={handleSubmit}
                 disabled={saving}
-                className="bg-blue-600 hover:bg-blue-700"
+                className="bg-brand-primary hover:bg-brand-accent-hover"
               >
                 {saving ? (
                   <>

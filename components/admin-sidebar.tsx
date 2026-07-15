@@ -1,11 +1,12 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { School, LogOut, X } from "lucide-react"
+import { LogOut, X } from "lucide-react"
 import { useRouter, usePathname } from "next/navigation"
 import { useState } from "react"
 import { buildAdminNavigation } from "@/lib/admin-navigation"
 import { AdminModeSwitch } from "@/components/admin-mode-switch"
+import { AdminSidebarBrand } from "@/components/admin-sidebar-brand"
 
 interface AdminSidebarProps {
   sidebarCollapsed: boolean
@@ -65,10 +66,7 @@ export function AdminSidebar({ sidebarCollapsed, mobileMenuOpen, setMobileMenuOp
 
         <div className="p-4 border-b border-sidebar-border">
           <div className={`flex items-center ${sidebarCollapsed ? 'justify-center' : 'space-x-3'}`}>
-            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
-              <School className="w-6 h-6 text-white" />
-            </div>
-            {!sidebarCollapsed && <span className="text-xl font-bold">SIREDI Admin</span>}
+            <AdminSidebarBrand collapsed={sidebarCollapsed} />
           </div>
         </div>
 
@@ -87,7 +85,7 @@ export function AdminSidebar({ sidebarCollapsed, mobileMenuOpen, setMobileMenuOp
                       sidebarCollapsed ? 'justify-center' : 'space-x-3'
                     } ${
                       item.active
-                        ? "bg-blue-600 text-white shadow-lg"
+                        ? "bg-brand-primary text-white shadow-lg"
                         : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-md"
                     }`}
                     title={sidebarCollapsed ? item.label : undefined}

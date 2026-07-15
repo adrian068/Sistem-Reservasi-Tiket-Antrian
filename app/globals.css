@@ -9,6 +9,20 @@
 }
 
 :root {
+  /* Brand Dinas Pendidikan Kota Banjarmasin */
+  --brand-header: #154c99;
+  --brand-header-dark: #0a2459;
+  --brand-footer: #0a1d37;
+  --brand-primary: #1a5298;
+  --brand-accent: #2563eb;
+  --brand-accent-hover: #1d4ed8;
+  --brand-hero: #d6e9fa;
+  --brand-light: #dbeafe;
+  --brand-light-bg: #eff6ff;
+  --brand-border-light: #93c5fd;
+  --brand-text: #0d2e5e;
+  --brand-text-navy: #0f2d6b;
+
   /* Changed light mode to gray theme */
   --background: oklch(0.95 0 0); /* Light gray background */
   --foreground: oklch(0.2 0 0); /* Dark gray text */
@@ -140,6 +154,19 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  --color-brand-header: var(--brand-header);
+  --color-brand-header-dark: var(--brand-header-dark);
+  --color-brand-footer: var(--brand-footer);
+  --color-brand-primary: var(--brand-primary);
+  --color-brand-accent: var(--brand-accent);
+  --color-brand-accent-hover: var(--brand-accent-hover);
+  --color-brand-hero: var(--brand-hero);
+  --color-brand-light: var(--brand-light);
+  --color-brand-light-bg: var(--brand-light-bg);
+  --color-brand-border-light: var(--brand-border-light);
+  --color-brand-text: var(--brand-text);
+  --color-brand-text-navy: var(--brand-text-navy);
 }
 
 @layer base {

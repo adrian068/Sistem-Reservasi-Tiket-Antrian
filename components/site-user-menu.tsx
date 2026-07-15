@@ -88,7 +88,7 @@ export function SiteUserMenu({ variant = "header", onNavigate }: SiteUserMenuPro
             <Link
               href="/admin/super/dashboard"
               onClick={onNavigate}
-              className="flex items-center gap-2 px-4 py-3 rounded-lg text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-950/30 transition-colors"
+              className="flex items-center gap-2 px-4 py-3 rounded-lg text-brand-accent hover:bg-violet-50 dark:hover:bg-violet-950/30 transition-colors"
             >
               <LayoutDashboard className="w-4 h-4" />
               Super Admin
@@ -126,7 +126,7 @@ export function SiteUserMenu({ variant = "header", onNavigate }: SiteUserMenuPro
         )}
         title={user.email}
       >
-        <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
+        <div className="w-8 h-8 rounded-full bg-brand-primary flex items-center justify-center">
           <User className="w-4 h-4 text-white" />
         </div>
         <span className="text-sm font-medium text-foreground max-w-[120px] truncate">

@@ -126,7 +126,7 @@ export function ReservationsDataPanel() {
     <div className="space-y-8">
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: "Total", value: stats.total, color: "text-violet-600" },
+          { label: "Total", value: stats.total, color: "text-brand-accent" },
           { label: "Menunggu", value: stats.waiting, color: "text-amber-600" },
           { label: "Selesai", value: stats.completed, color: "text-green-600" },
           { label: "Batal", value: stats.cancelled, color: "text-red-600" },
@@ -205,7 +205,7 @@ export function ReservationsDataPanel() {
 
       {loading ? (
         <div className="flex justify-center py-16">
-          <Loader2 className="w-8 h-8 animate-spin text-violet-600" />
+          <Loader2 className="w-8 h-8 animate-spin text-brand-accent" />
         </div>
       ) : filtered.length === 0 ? (
         <Card>

@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
-import { CalendarCheck, Menu, X } from "lucide-react"
+import { Menu, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { SirediLogo } from "@/components/siredi-logo"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -24,7 +24,7 @@ type SiteHeaderProps = {
   /** Tombol Masuk / nama / Keluar di bar header (kanan), sejajar Beranda */
   inlineAuth?: boolean
   loginRedirect?: string
-  /** Tampilkan logo Disdik dengan header navy (halaman reservasi) */
+  /** Tampilkan logo Disdik dengan header navy (default: aktif) */
   showBrandLogo?: boolean
 }
 
@@ -32,7 +32,7 @@ export function SiteHeader({
   hideUserMenu = false,
   inlineAuth = false,
   loginRedirect = "/reservasi",
-  showBrandLogo = false,
+  showBrandLogo = true,
 }: SiteHeaderProps) {
   const pathname = usePathname()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -57,7 +57,7 @@ export function SiteHeader({
       className={cn(
         "sticky top-0 z-50 backdrop-blur-sm border-b shadow-sm transition-all duration-300",
         showBrandLogo
-          ? "bg-[#0f2d6b] border-[#0a2459] text-white"
+          ? "bg-brand-header border-brand-header-dark text-white"
           : "bg-gray-200 dark:bg-background/95 border-gray-300 dark:border-border",
       )}
     >
@@ -68,14 +68,7 @@ export function SiteHeader({
               {showBrandLogo ? (
                 <SirediLogo size="sm" variant="light" />
               ) : (
-                <Link href="/" className="flex items-center space-x-3 shrink-0">
-                  <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center transform transition-all duration-300 hover:scale-110 hover:rotate-3">
-                    <CalendarCheck className="w-6 h-6 text-white" />
-                  </div>
-                  <span className="text-lg sm:text-xl font-bold text-foreground transition-colors duration-300 hover:text-primary">
-                    Reservasi SIREDI
-                  </span>
-                </Link>
+                <SirediLogo size="sm" variant="default" />
               )}
             </ScrollReveal>
 
@@ -99,7 +92,7 @@ export function SiteHeader({
                     {item.label}
                     <span
                       className={cn(
-                        "absolute -bottom-1 left-0 h-0.5 bg-blue-600 transition-all duration-300",
+                        "absolute -bottom-1 left-0 h-0.5 bg-brand-accent transition-all duration-300",
                         isNavActive(pathname, item.href)
                           ? "w-full"
                           : "w-0 group-hover:w-full",
@@ -121,13 +114,16 @@ export function SiteHeader({
               {!hideUserMenu && !inlineAuth && <SiteUserMenu />}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="md:hidden p-2 rounded-lg transition-all duration-300 hover:bg-accent"
+                className={cn(
+                  "md:hidden p-2 rounded-lg transition-all duration-300",
+                  showBrandLogo ? "hover:bg-white/10" : "hover:bg-accent",
+                )}
                 aria-label="Toggle mobile menu"
               >
                 {isMobileMenuOpen ? (
-                  <X className="w-6 h-6 text-foreground" />
+                  <X className={cn("w-6 h-6", showBrandLogo ? "text-white" : "text-foreground")} />
                 ) : (
-                  <Menu className="w-6 h-6 text-foreground" />
+                  <Menu className={cn("w-6 h-6", showBrandLogo ? "text-white" : "text-foreground")} />
                 )}
               </button>
               <ThemeToggle />
@@ -136,8 +132,18 @@ export function SiteHeader({
         </div>
 
         {isMobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-300 dark:border-border">
-            <nav className="px-4 py-6 space-y-4 bg-gray-200 dark:bg-background">
+          <div
+            className={cn(
+              "md:hidden border-t",
+              showBrandLogo ? "border-brand-header-dark" : "border-gray-300 dark:border-border",
+            )}
+          >
+            <nav
+              className={cn(
+                "px-4 py-6 space-y-4",
+                showBrandLogo ? "bg-brand-header" : "bg-gray-200 dark:bg-background",
+              )}
+            >
               {NAV_ITEMS.map((item) => (
                 <Link
                   key={item.label}
@@ -146,8 +152,12 @@ export function SiteHeader({
                   className={cn(
                     "block px-4 py-3 rounded-lg font-medium transition-all duration-300",
                     isNavActive(pathname, item.href)
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                      ? showBrandLogo
+                        ? "bg-white/20 text-white"
+                        : "bg-primary text-primary-foreground"
+                      : showBrandLogo
+                        ? "text-blue-100 hover:bg-white/10 hover:text-white"
+                        : "text-muted-foreground hover:bg-accent hover:text-foreground",
                   )}
                 >
                   {item.label}

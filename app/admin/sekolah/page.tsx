@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { AdminSidebarBrand } from "@/components/admin-sidebar-brand"
 import {
   School,
   FileText,
@@ -382,10 +383,7 @@ export default function AdminSchoolsPage() {
         {/* Logo */}
         <div className="p-4 border-b border-sidebar-border">
           <div className={`flex items-center ${sidebarCollapsed ? 'justify-center' : 'space-x-3'}`}>
-            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
-              <School className="w-6 h-6 text-white" />
-            </div>
-            {!sidebarCollapsed && <span className="text-xl font-bold">SIREDI Admin</span>}
+            <AdminSidebarBrand collapsed={sidebarCollapsed} />
           </div>
         </div>
 
@@ -405,7 +403,7 @@ export default function AdminSchoolsPage() {
                       sidebarCollapsed ? 'justify-center' : 'space-x-3'
                     } ${
                       item.active
-                        ? "bg-blue-600 text-white shadow-lg"
+                        ? "bg-brand-primary text-white shadow-lg"
                         : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-md"
                     }`}
                     title={sidebarCollapsed ? item.label : undefined}
@@ -464,7 +462,7 @@ export default function AdminSchoolsPage() {
             <div className="flex items-center space-x-2 lg:space-x-4">
               <ThemeToggle />
               <Button variant="ghost" size="sm" className="hover:bg-accent hover:scale-105 transition-all duration-200">
-                <div className="w-6 h-6 lg:w-8 lg:h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                <div className="w-6 h-6 lg:w-8 lg:h-8 bg-brand-primary rounded-full flex items-center justify-center">
                   <span className="text-xs lg:text-sm font-medium text-white">A</span>
                 </div>
                 <ChevronDown className="w-3 h-3 lg:w-4 lg:h-4 ml-1 lg:ml-2" />
@@ -489,10 +487,10 @@ export default function AdminSchoolsPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-500 mb-1">Total Sekolah</p>
-                      <p className="text-3xl font-bold text-blue-600">{stats.total}</p>
+                      <p className="text-3xl font-bold text-brand-accent">{stats.total}</p>
                     </div>
                     <div className="bg-blue-100 p-3 rounded-lg admin-icon-hover">
-                      <School className="w-6 h-6 text-blue-600" />
+                      <School className="w-6 h-6 text-brand-accent" />
                     </div>
                   </div>
                 </CardContent>
@@ -546,7 +544,7 @@ export default function AdminSchoolsPage() {
               <CardHeader>
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                   <CardTitle>Daftar Sekolah</CardTitle>
-                  <Button onClick={handleAdd} className="bg-blue-600 hover:bg-blue-700 admin-button-hover">
+                  <Button onClick={handleAdd} className="bg-brand-primary hover:bg-brand-accent-hover admin-button-hover">
                     <Plus className="w-4 h-4 mr-2" />
                     Tambah Sekolah
                   </Button>
@@ -657,7 +655,7 @@ export default function AdminSchoolsPage() {
                               size="sm"
                               variant="outline"
                               onClick={() => handleViewDetails(sekolah)}
-                              className="flex-1 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950"
+                              className="flex-1 text-brand-accent hover:text-brand-accent-hover hover:bg-blue-50 dark:hover:bg-blue-950"
                             >
                               <Eye className="w-4 h-4" />
                             </Button>
@@ -992,7 +990,7 @@ export default function AdminSchoolsPage() {
               }}>
                 Batal
               </Button>
-              <Button type="submit" disabled={uploading} className="bg-blue-600 hover:bg-blue-700">
+              <Button type="submit" disabled={uploading} className="bg-brand-primary hover:bg-brand-accent-hover">
                 {uploading ? "Mengupload..." : editingSekolah ? "Update" : "Simpan"}
               </Button>
             </DialogFooter>

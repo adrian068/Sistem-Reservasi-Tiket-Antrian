@@ -61,7 +61,7 @@ export function PageAuthActions({ loginRedirect = "/reservasi" }: PageAuthAction
       <Button
         asChild
         size="sm"
-        className="bg-white text-blue-700 hover:bg-blue-50 font-semibold shadow-md h-9"
+        className="bg-white text-brand-text-navy hover:bg-brand-light-bg font-semibold shadow-md h-9"
       >
         <Link href={`/login?redirect=${encodeURIComponent(loginRedirect)}`}>
           <LogIn className="w-4 h-4 mr-1.5" />
@@ -79,7 +79,7 @@ export function PageAuthActions({ loginRedirect = "/reservasi" }: PageAuthAction
         className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/95 dark:bg-card border border-white/30 shadow-sm"
         title={user.email}
       >
-        <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center shrink-0">
+        <div className="w-8 h-8 rounded-full bg-brand-primary flex items-center justify-center shrink-0">
           <User className="w-4 h-4 text-white" />
         </div>
         <span className="text-sm font-medium text-foreground max-w-[100px] sm:max-w-[140px] truncate">
@@ -92,7 +92,7 @@ export function PageAuthActions({ loginRedirect = "/reservasi" }: PageAuthAction
             asChild
             size="sm"
             variant="outline"
-            className="h-9 bg-white/95 text-blue-800 border-white/40 hover:bg-white hidden sm:inline-flex"
+            className="h-9 bg-white/95 text-brand-text-navy border-white/40 hover:bg-white hidden sm:inline-flex"
           >
             <Link href="/admin/dashboard">
               <LayoutDashboard className="w-4 h-4 mr-1.5" />
@@ -103,7 +103,7 @@ export function PageAuthActions({ loginRedirect = "/reservasi" }: PageAuthAction
             asChild
             size="sm"
             variant="outline"
-            className="h-9 bg-violet-600/95 text-white border-violet-400 hover:bg-violet-700"
+            className="h-9 bg-brand-primary/95 text-white border-brand-border-light hover:bg-brand-accent-hover"
           >
             <Link href="/admin/super/dashboard">
               <LayoutDashboard className="w-4 h-4 mr-1.5" />
@@ -117,7 +117,7 @@ export function PageAuthActions({ loginRedirect = "/reservasi" }: PageAuthAction
           asChild
           size="sm"
           variant="outline"
-          className="h-9 bg-white/95 text-blue-800 border-white/40 hover:bg-white"
+          className="h-9 bg-white/95 text-brand-text-navy border-white/40 hover:bg-white"
         >
           <Link href="/admin/dashboard">
             <LayoutDashboard className="w-4 h-4 mr-1.5" />

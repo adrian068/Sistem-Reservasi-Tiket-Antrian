@@ -153,7 +153,7 @@ function LoginPageContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-700 via-blue-600 via-blue-500 to-blue-300 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-brand-header via-brand-primary via-brand-accent to-brand-light relative overflow-hidden">
       <div className="absolute top-16 left-16 w-40 h-40 bg-white/8 rounded-full blur-3xl" />
       <div className="absolute top-32 right-24 w-32 h-32 bg-white/12 rounded-full blur-2xl" />
       <div className="absolute bottom-40 left-1/3 w-48 h-48 bg-white/6 rounded-full blur-3xl" />
@@ -201,7 +201,7 @@ function LoginPageContent() {
                   className={cn(
                     "py-2.5 text-sm font-medium rounded-md transition-colors",
                     mode === "login"
-                      ? "bg-white text-blue-600 shadow-sm"
+                      ? "bg-white text-brand-primary shadow-sm"
                       : "text-gray-600 hover:text-gray-900",
                   )}
                 >
@@ -213,7 +213,7 @@ function LoginPageContent() {
                   className={cn(
                     "py-2.5 text-sm font-medium rounded-md transition-colors",
                     mode === "register"
-                      ? "bg-white text-blue-600 shadow-sm"
+                      ? "bg-white text-brand-primary shadow-sm"
                       : "text-gray-600 hover:text-gray-900",
                   )}
                 >
@@ -248,7 +248,7 @@ function LoginPageContent() {
                         autoComplete="username"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
-                        className="pl-10 h-12 bg-gray-50 border-gray-200 text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-blue-500 rounded-lg"
+                        className="pl-10 h-12 bg-gray-50 border-gray-200 text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-brand-accent rounded-lg"
                         required
                         minLength={3}
                       />
@@ -272,7 +272,7 @@ function LoginPageContent() {
                         autoComplete="current-password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="pl-10 pr-10 h-12 bg-gray-50 border-gray-200 text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-blue-500 rounded-lg"
+                        className="pl-10 pr-10 h-12 bg-gray-50 border-gray-200 text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-brand-accent rounded-lg"
                         required
                       />
                       <button
@@ -304,7 +304,7 @@ function LoginPageContent() {
                     </div>
                     <Link
                       href="/forgot-password"
-                      className="text-sm text-blue-600 hover:text-blue-700"
+                      className="text-sm text-brand-accent hover:text-brand-accent-hover"
                     >
                       Lupa kata sandi?
                     </Link>
@@ -313,7 +313,7 @@ function LoginPageContent() {
                   <Button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg"
+                    className="w-full h-12 bg-brand-primary hover:bg-brand-accent-hover text-white font-medium rounded-lg"
                   >
                     {isLoading ? (
                       <>
@@ -343,7 +343,7 @@ function LoginPageContent() {
                         autoComplete="name"
                         value={nama}
                         onChange={(e) => setNama(e.target.value)}
-                        className="pl-10 h-12 bg-gray-50 border-gray-200 focus:bg-white focus:border-blue-500 rounded-lg"
+                        className="pl-10 h-12 bg-gray-50 border-gray-200 focus:bg-white focus:border-brand-accent rounded-lg"
                         required
                       />
                     </div>
@@ -362,7 +362,7 @@ function LoginPageContent() {
                         autoComplete="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="pl-10 h-12 bg-gray-50 border-gray-200 text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-blue-500 rounded-lg"
+                        className="pl-10 h-12 bg-gray-50 border-gray-200 text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-brand-accent rounded-lg"
                         required
                       />
                     </div>
@@ -381,7 +381,7 @@ function LoginPageContent() {
                         autoComplete="new-password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="pl-10 pr-10 h-12 bg-gray-50 border-gray-200 focus:bg-white focus:border-blue-500 rounded-lg"
+                        className="pl-10 pr-10 h-12 bg-gray-50 border-gray-200 focus:bg-white focus:border-brand-accent rounded-lg"
                         required
                         minLength={8}
                       />
@@ -415,7 +415,7 @@ function LoginPageContent() {
                         autoComplete="new-password"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="pl-10 pr-10 h-12 bg-gray-50 border-gray-200 focus:bg-white focus:border-blue-500 rounded-lg"
+                        className="pl-10 pr-10 h-12 bg-gray-50 border-gray-200 focus:bg-white focus:border-brand-accent rounded-lg"
                         required
                         minLength={8}
                       />
@@ -436,7 +436,7 @@ function LoginPageContent() {
                   <Button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg"
+                    className="w-full h-12 bg-brand-primary hover:bg-brand-accent-hover text-white font-medium rounded-lg"
                   >
                     {isLoading ? (
                       <>
@@ -474,7 +474,7 @@ export default function LoginPage() {
 
 function LoginPageFallback() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-700 via-blue-600 to-blue-400 flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-brand-header via-brand-primary to-brand-accent flex items-center justify-center">
       <Loader2 className="w-10 h-10 text-white animate-spin" />
     </div>
   );

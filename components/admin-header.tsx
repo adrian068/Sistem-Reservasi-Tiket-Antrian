@@ -122,7 +122,7 @@ export function AdminHeader({
                   </div>
                 </div>
                 <div className="p-3 border-t border-border text-center">
-                  <button className="text-sm text-blue-600 hover:underline">Lihat Semua Notifikasi</button>
+                  <button className="text-sm text-brand-accent hover:underline">Lihat Semua Notifikasi</button>
                 </div>
               </div>
             )}
@@ -136,7 +136,7 @@ export function AdminHeader({
               className="hover:bg-accent hover:scale-105 transition-all duration-200 user-menu-button"
               onClick={() => setShowUserMenu(!showUserMenu)}
             >
-              <div className="w-6 h-6 lg:w-8 lg:h-8 bg-blue-600 rounded-full flex items-center justify-center">
+              <div className="w-6 h-6 lg:w-8 lg:h-8 bg-brand-primary rounded-full flex items-center justify-center">
                 <span className="text-xs lg:text-sm font-medium text-white">A</span>
               </div>
               <ChevronDown className="w-3 h-3 lg:w-4 lg:h-4 ml-1 lg:ml-2" />

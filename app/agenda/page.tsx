@@ -166,7 +166,7 @@ export default function AgendaPage() {
                   onClick={() => setSelectedCategory(category)}
                   className={`transition-all duration-300 ${
                     selectedCategory === category
-                      ? "bg-blue-600 hover:bg-blue-700"
+                      ? "bg-brand-primary hover:bg-brand-accent-hover"
                       : "bg-transparent hover:bg-blue-50 hover:border-blue-300"
                   }`}
                 >
@@ -221,7 +221,7 @@ export default function AgendaPage() {
                   <Badge variant="outline">{agenda.category}</Badge>
                 </div>
 
-                <h3 className="text-xl font-bold text-foreground mb-3 transition-all duration-300 group-hover:text-blue-600 line-clamp-2">
+                <h3 className="text-xl font-bold text-foreground mb-3 transition-all duration-300 group-hover:text-brand-accent line-clamp-2">
                   {agenda.title}
                 </h3>
 
@@ -248,7 +248,7 @@ export default function AgendaPage() {
 
                 <Link
                   href={`/agenda/${agenda.slug}`}
-                  className="text-blue-600 hover:text-blue-700 font-medium transition-all duration-300 relative group-hover:translate-x-2 inline-flex items-center"
+                  className="text-brand-accent hover:text-brand-accent-hover font-medium transition-all duration-300 relative group-hover:translate-x-2 inline-flex items-center"
                 >
                   Lihat Detail
                   <span className="ml-1 transition-transform duration-300 group-hover:translate-x-1">→</span>

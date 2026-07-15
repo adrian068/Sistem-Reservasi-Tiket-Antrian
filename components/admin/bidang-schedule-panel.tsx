@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils"
 import { getBidangConfig, type BidangSlug } from "@/lib/bidang-config"
 import { getWitaNowMinutes, isTimeSlotPassed } from "@/lib/reservation-hours"
 import { parseSlotStartTime } from "@/lib/time-slots"
+import { useTimeSlotSync } from "@/hooks/use-time-slot-sync"
 import { CalendarClock, Clock, Loader2, RefreshCw, Unlock } from "lucide-react"
 
 type SlotRow = {
@@ -62,13 +63,14 @@ export function BidangSchedulePanel({ bidangSlug }: { bidangSlug: BidangSlug }) 
 
   useEffect(() => {
     fetchData()
-    const interval = setInterval(fetchData, 15000)
     const clock = setInterval(() => setClockTick((t) => t + 1), 60000)
-    return () => {
-      clearInterval(interval)
-      clearInterval(clock)
-    }
+    return () => clearInterval(clock)
   }, [fetchData])
+
+  useTimeSlotSync({
+    enabled: true,
+    onRefresh: fetchData,
+  })
 
   const currentMinutes = getWitaNowMinutes()
   const todayForSlots = data?.date
@@ -189,15 +191,15 @@ export function BidangSchedulePanel({ bidangSlug }: { bidangSlug: BidangSlug }) 
                           <p className="font-medium">{slot.time}</p>
                           <p className="text-xs text-muted-foreground">{slot.durationLabel}</p>
                           {!isPassed && !isFull && (
-                            <p className="text-[10px] text-muted-foreground mt-0.5">
+                            <p className="text-xs text-muted-foreground mt-0.5">
                               {remaining} dari {slot.capacity} tersisa
                             </p>
                           )}
                           {isPassed && (
-                            <p className="text-[10px] text-red-500 mt-0.5">Sudah lewat</p>
+                            <p className="text-xs text-red-500 mt-0.5 font-medium">Sudah lewat</p>
                           )}
                           {!isPassed && isFull && (
-                            <p className="text-[10px] text-red-500 mt-0.5">Penuh</p>
+                            <p className="text-xs text-red-500 mt-0.5 font-medium">Penuh</p>
                           )}
                         </div>
                         <div className="text-right">
@@ -208,7 +210,10 @@ export function BidangSchedulePanel({ bidangSlug }: { bidangSlug: BidangSlug }) 
                           )}
                           <Badge
                             variant="secondary"
-                            className={cn(isFull && !isPassed && "bg-red-100 text-red-700")}
+                            className={cn(
+                              "text-xs sm:text-sm font-semibold px-2.5 py-1 min-w-[4.75rem] justify-center",
+                              isFull && !isPassed && "bg-red-100 text-red-700",
+                            )}
                           >
                             {slot.booked}/{slot.capacity} tamu
                           </Badge>
