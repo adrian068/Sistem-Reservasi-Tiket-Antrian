@@ -15,6 +15,7 @@ import {
 } from './reservations-fallback-store'
 import { isSameLayanan, type LayananRef } from './layanan-match'
 import { parseSlotStartTime } from './time-slots'
+import { formatLocalDateYmd } from './utils'
 
 function matchesTimeSlot(reservationSlot: string, targetSlot: string): boolean {
   if (reservationSlot === targetSlot) return true
@@ -50,7 +51,7 @@ function mapDbReservation(reservation: {
     phone: reservation.phone,
     nik: reservation.nik,
     purpose: reservation.purpose,
-    date: reservation.date.toISOString().split('T')[0],
+    date: formatLocalDateYmd(reservation.date),
     timeSlot: reservation.timeSlot,
     status: reservation.status.toLowerCase(),
     createdAt: reservation.createdAt.toISOString(),

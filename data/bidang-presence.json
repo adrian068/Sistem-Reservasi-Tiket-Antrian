@@ -140,6 +140,53 @@
           "updatedAt": "2026-07-06T15:50:07.545Z"
         }
       ]
+    },
+    {
+      "slug": "smp-umum",
+      "nama": "SMP Umum",
+      "updatedAt": "2026-07-16T05:27:02.580Z",
+      "petugas": [
+        {
+          "id": "smp-umum-1",
+          "nama": "Kepala Seksi SMP",
+          "jabatan": "Kasi SMP",
+          "hadir": false,
+          "diRuangan": false,
+          "updatedAt": "2026-07-16T05:27:02.580Z"
+        },
+        {
+          "id": "smp-umum-2",
+          "nama": "Analis SMP I",
+          "jabatan": "Staff Kurikulum",
+          "hadir": false,
+          "diRuangan": false,
+          "updatedAt": "2026-07-16T05:27:02.580Z"
+        },
+        {
+          "id": "smp-umum-3",
+          "nama": "Analis SMP II",
+          "jabatan": "Staff Sarpras",
+          "hadir": false,
+          "diRuangan": false,
+          "updatedAt": "2026-07-16T05:27:02.580Z"
+        },
+        {
+          "id": "smp-umum-4",
+          "nama": "Penata Layanan Operasional",
+          "jabatan": "Staff Administrasi",
+          "hadir": false,
+          "diRuangan": false,
+          "updatedAt": "2026-07-16T05:27:02.580Z"
+        },
+        {
+          "id": "smp-umum-5",
+          "nama": "Pranata Humas",
+          "jabatan": "Staff Humas & Data",
+          "hadir": false,
+          "diRuangan": false,
+          "updatedAt": "2026-07-16T05:27:02.580Z"
+        }
+      ]
     }
   ]
 }

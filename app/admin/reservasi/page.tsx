@@ -39,7 +39,7 @@ import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { ReservationTimeSettings } from "@/components/admin/reservation-time-settings"
-import { BidangPresencePanel } from "@/components/admin/bidang-presence-panel"
+import { BidangPresenceOverviewPanel } from "@/components/admin/bidang-presence-overview-panel"
 import { buildAdminNavigation } from "@/lib/admin-navigation"
 import { AdminModeSwitch } from "@/components/admin-mode-switch"
 import { AdminSidebarBrand } from "@/components/admin-sidebar-brand"
@@ -563,7 +563,7 @@ export default function AdminReservationsPage() {
             <ReservationTimeSettings />
           </div>
 
-          <BidangPresencePanel bidangSlug="paud" compact className="mb-8" />
+          <BidangPresenceOverviewPanel compact className="mb-8" />
 
           {/* Reservation Statistics with Quick Call */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">

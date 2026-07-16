@@ -45,15 +45,24 @@ export async function GET(request: NextRequest) {
       service: service ?? undefined,
     })
 
-    const timeSlots = timeSlotConfig.map((slot) => ({
-      id: slot.id,
-      time: slot.time,
-      capacity: slotCapacity,
-      booked: bookingsCount[slot.id] || bookingsCount[slot.time] || 0,
-      durationCategory: slot.durationCategory,
-      durationLabel: slot.durationLabel,
-      durationMinutes: slot.durationMinutes,
-    }))
+    const timeSlots = timeSlotConfig.map((slot) => {
+      const start = slot.id.split("|")[0]
+      const booked =
+        bookingsCount[slot.id] ??
+        bookingsCount[slot.time] ??
+        bookingsCount[start] ??
+        0
+
+      return {
+        id: slot.id,
+        time: slot.time,
+        capacity: slotCapacity,
+        booked,
+        durationCategory: slot.durationCategory,
+        durationLabel: slot.durationLabel,
+        durationMinutes: slot.durationMinutes,
+      }
+    })
 
     return NextResponse.json(
       {

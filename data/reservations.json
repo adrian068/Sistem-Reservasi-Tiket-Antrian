@@ -89,11 +89,11 @@
     "purpose": "bh",
     "date": "2026-06-03",
     "timeSlot": "11:10|long",
-    "status": "waiting",
+    "status": "called",
     "estimatedCallTime": "01:49",
     "id": "local-1780337952470-33mn6i",
     "createdAt": "2026-06-01T18:19:12.470Z",
-    "updatedAt": "2026-06-01T18:19:12.470Z"
+    "updatedAt": "2026-07-16T05:30:42.566Z"
   },
   {
     "queueNumber": "PTK-05",

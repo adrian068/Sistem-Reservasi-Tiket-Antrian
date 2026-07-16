@@ -1,3 +1,5 @@
+import { getServiceKey } from "./queue-service-key"
+
 /** Normalisasi nama layanan untuk perbandingan. */
 function normalizeServiceName(service: string): string {
   return service.trim().toLowerCase()
@@ -25,6 +27,10 @@ export function isSameLayanan(a: LayananRef, b: LayananRef): boolean {
   if (serviceA && serviceB && normalizeServiceName(serviceA) === normalizeServiceName(serviceB)) {
     return true
   }
+
+  const keyA = getServiceKey(a)
+  const keyB = getServiceKey(b)
+  if (keyA && keyB && keyA === keyB) return true
 
   return false
 }

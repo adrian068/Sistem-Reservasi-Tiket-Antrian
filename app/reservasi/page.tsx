@@ -95,6 +95,11 @@ interface ReservationData {
   purpose: string
 }
 
+const RESERVATION_CARD_CLASS = "shadow-lg border-0 bg-white dark:bg-card overflow-hidden p-0 gap-0"
+const RESERVATION_HEADER_CLASS =
+  "bg-gradient-to-r from-brand-light-bg to-brand-hero dark:from-brand-header-dark/40 dark:to-brand-header/40 p-4 sm:p-6 border-0"
+const RESERVATION_CONTENT_CLASS = "p-4 sm:p-8 bg-white dark:bg-card"
+
 export default function ReservasiPage() {
   const [step, setStep] = useState(1)
   const [selectedDate, setSelectedDate] = useState<Date>()
@@ -432,8 +437,8 @@ export default function ReservasiPage() {
         {/* Step 1: Service Selection */}
         {step === 1 && (
           <ScrollReveal animation="fade-up" delay={200}>
-            <Card className="shadow-lg border-0 bg-white dark:bg-card">
-              <CardHeader className="bg-gradient-to-r from-brand-light-bg to-brand-hero dark:from-brand-header-dark/40 dark:to-brand-header/40 p-4 sm:p-6">
+            <Card className={RESERVATION_CARD_CLASS}>
+              <CardHeader className={RESERVATION_HEADER_CLASS}>
                 <CardTitle className="text-center text-xl sm:text-2xl text-brand-text-navy dark:text-brand-light">
                   Pilih Layanan
                 </CardTitle>
@@ -441,7 +446,7 @@ export default function ReservasiPage() {
                   Silakan pilih layanan yang Anda butuhkan
                 </p>
               </CardHeader>
-              <CardContent className="p-4 sm:p-8 bg-white dark:bg-card">
+              <CardContent className={RESERVATION_CONTENT_CLASS}>
                 {isLoadingServices ? (
                   <div className="flex justify-center py-8">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary"></div>
@@ -487,8 +492,8 @@ export default function ReservasiPage() {
         {/* Step 2: Date Selection */}
         {step === 2 && (
           <ScrollReveal animation="fade-up" delay={200}>
-            <Card className="shadow-lg border-0 bg-white dark:bg-card">
-              <CardHeader className="bg-gradient-to-r from-brand-light-bg to-brand-hero dark:from-brand-header-dark/40 dark:to-brand-header/40 p-4 sm:p-6">
+            <Card className={RESERVATION_CARD_CLASS}>
+              <CardHeader className={RESERVATION_HEADER_CLASS}>
                 <CardTitle className="text-center text-xl sm:text-2xl text-brand-text-navy dark:text-brand-light">
                   Pilih Tanggal
                 </CardTitle>
@@ -497,7 +502,7 @@ export default function ReservasiPage() {
                   <span className="font-semibold text-brand-accent dark:text-brand-light">{selectedService?.name}</span>
                 </p>
               </CardHeader>
-              <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-8 bg-white dark:bg-card">
+              <CardContent className={cn(RESERVATION_CONTENT_CLASS, "space-y-4 sm:space-y-6")}>
                 <div className="w-full">
                   <Label className="text-sm sm:text-base font-medium text-foreground">Pilih Tanggal Kunjungan</Label>
                   <p className="text-xs text-muted-foreground mt-1 mb-2">
@@ -581,8 +586,8 @@ export default function ReservasiPage() {
         {/* Step 3: Time Slot Selection */}
         {step === 3 && (
           <ScrollReveal animation="fade-up" delay={200}>
-            <Card className="shadow-lg border-0 bg-white dark:bg-card">
-              <CardHeader className="bg-gradient-to-r from-brand-light-bg to-brand-hero dark:from-brand-header-dark/40 dark:to-brand-header/40 p-4 sm:p-6">
+            <Card className={RESERVATION_CARD_CLASS}>
+              <CardHeader className={RESERVATION_HEADER_CLASS}>
                 <CardTitle className="text-center text-xl sm:text-2xl text-brand-text-navy dark:text-brand-light">
                   Pilih Slot Waktu
                 </CardTitle>
@@ -599,7 +604,7 @@ export default function ReservasiPage() {
                   )}
                 </p>
               </CardHeader>
-              <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-8 bg-white dark:bg-card">
+              <CardContent className={cn(RESERVATION_CONTENT_CLASS, "space-y-4 sm:space-y-6")}>
                 <div>
                   <Label className="text-sm sm:text-base font-medium text-foreground">Pilih Waktu</Label>
                   <p className="text-xs text-muted-foreground mt-1 mb-2">
@@ -660,8 +665,8 @@ export default function ReservasiPage() {
         {/* Step 4: Personal Information */}
         {step === 4 && (
           <ScrollReveal animation="fade-up" delay={200}>
-            <Card className="shadow-lg border-0 bg-white dark:bg-card">
-              <CardHeader className="bg-gradient-to-r from-brand-light-bg to-brand-hero dark:from-brand-header-dark/40 dark:to-brand-header/40 p-4 sm:p-6">
+            <Card className={RESERVATION_CARD_CLASS}>
+              <CardHeader className={RESERVATION_HEADER_CLASS}>
                 <CardTitle className="text-center text-xl sm:text-2xl text-brand-text-navy dark:text-brand-light">
                   Data Diri
                 </CardTitle>
@@ -669,7 +674,7 @@ export default function ReservasiPage() {
                   Lengkapi data diri Anda untuk reservasi
                 </p>
               </CardHeader>
-              <CardContent className="p-4 sm:p-8 bg-white dark:bg-card">
+              <CardContent className={RESERVATION_CONTENT_CLASS}>
                 <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                     <div>

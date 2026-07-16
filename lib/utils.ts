@@ -5,6 +5,14 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+/** Format Date ke YYYY-MM-DD tanpa geser timezone (WITA/lokal server). */
+export function formatLocalDateYmd(date: Date): string {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, "0")
+  const d = String(date.getDate()).padStart(2, "0")
+  return `${y}-${m}-${d}`
+}
+
 /**
  * Normalizes image URLs coming from the database or uploads so they can be used safely
  * with the Next.js <Image> component.

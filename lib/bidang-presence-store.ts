@@ -271,15 +271,17 @@ export async function getBidangPresence(slug: string): Promise<BidangPresence | 
 }
 
 export async function listBidangPresence(): Promise<BidangPresence[]> {
-  try {
-    const fromDb = await fetchAllDbBidangs()
-    if (fromDb.length > 0) return fromDb
-  } catch (error) {
-    if (!shouldUseFallbackForDbError(error)) throw error
+  const results: BidangPresence[] = []
+
+  for (const slug of BIDANG_SLUGS) {
+    const bidang = await getBidangPresence(slug)
+    if (bidang) results.push(bidang)
   }
 
+  if (results.length > 0) return results
+
   const store = await readFileStore()
-  if (!store.bidangs.some((b) => b.slug === 'paud')) {
+  if (!store.bidangs.some((b) => b.slug === "paud")) {
     store.bidangs.push(seedPaudBidang())
     await writeFileStore(store)
   }
