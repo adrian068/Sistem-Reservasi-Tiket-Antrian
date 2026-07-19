@@ -1,3 +1,5 @@
+import { FALLBACK_LAYANANS } from "./api-fallback-data"
+
 export const SERVICE_KEYS = ["ptk", "sd", "smp", "paud"] as const
 
 export type ServiceKey = (typeof SERVICE_KEYS)[number]
@@ -35,6 +37,13 @@ const SERVICE_NAME_MAP: Record<string, ServiceKey> = {
   paud: "paud",
 }
 
+const FALLBACK_LAYANAN_KEY_BY_ID: Record<string, ServiceKey> = Object.fromEntries(
+  FALLBACK_LAYANANS.flatMap((l) => {
+    const key = lookupServiceKey(l.name)
+    return key ? [[l.id, key] as const] : []
+  }),
+)
+
 function normalizeServiceText(value: string): string {
   return value.trim().toLowerCase().replace(/\s*&\s*/g, " dan ")
 }
@@ -57,16 +66,37 @@ function lookupServiceKey(value: string): ServiceKey | null {
 
 export function getServiceKey(input: {
   service?: string | null
-  layanan?: { name?: string | null } | null
+  layanan?: { name?: string | null; id?: string | null } | null
+  idLayanan?: string | null
 }): ServiceKey | null {
   if (input.layanan?.name) {
     const key = lookupServiceKey(input.layanan.name)
     if (key) return key
   }
   if (input.service) {
-    return lookupServiceKey(input.service)
+    const key = lookupServiceKey(input.service)
+    if (key) return key
   }
+
+  const layananId = input.idLayanan?.trim() || input.layanan?.id?.trim()
+  if (layananId && FALLBACK_LAYANAN_KEY_BY_ID[layananId]) {
+    return FALLBACK_LAYANAN_KEY_BY_ID[layananId]
+  }
+
   return null
+}
+
+/** Normalisasi objek reservasi ke service key — sama di admin loket & bidang. */
+export function getServiceKeyFromReservation(reservation: {
+  service?: string | null
+  idLayanan?: string | null
+  layanan?: { name?: string | null; id?: string | null } | null
+}): ServiceKey | null {
+  return getServiceKey({
+    service: reservation.service,
+    idLayanan: reservation.idLayanan,
+    layanan: reservation.layanan,
+  })
 }
 
 export function getBidangSlugForServiceKey(serviceKey: ServiceKey): string {
@@ -79,10 +109,9 @@ export function getBidangSlugForServiceKey(serviceKey: ServiceKey): string {
   return map[serviceKey]
 }
 
+import { getWitaTodayYmd } from "./reservation-hours"
+
+/** Hari ini menurut WITA (Banjarmasin, Asia/Makassar). */
 export function todayLocalYmd(): string {
-  const now = new Date()
-  const y = now.getFullYear()
-  const m = String(now.getMonth() + 1).padStart(2, "0")
-  const d = String(now.getDate()).padStart(2, "0")
-  return `${y}-${m}-${d}`
+  return getWitaTodayYmd()
 }

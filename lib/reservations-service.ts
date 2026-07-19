@@ -106,13 +106,14 @@ export async function createReservationRecord(input: {
   estimatedCallTime: string
 }) {
   const [y, m, d] = input.date.split('-').map(Number)
-  const reservationDate = new Date(y, m - 1, d)
+  const reservationDate = new Date(Date.UTC(y, m - 1, d))
 
   let layananId: bigint | null = null
-  if (input.idLayanan && !isFallbackLayananId(input.idLayanan)) {
+  if (input.idLayanan) {
     try {
       layananId = BigInt(input.idLayanan)
-      await prisma.layanan.findUnique({ where: { id: layananId } })
+      const exists = await prisma.layanan.findUnique({ where: { id: layananId } })
+      if (!exists) layananId = null
     } catch {
       layananId = null
     }
@@ -202,7 +203,7 @@ export async function countActiveSlotBookings(
     (r) =>
       r.date === date &&
       matchesTimeSlot(r.timeSlot, timeSlot) &&
-      ['waiting', 'called'].includes(r.status.toLowerCase()) &&
+      ['waiting', 'called', 'completed'].includes(r.status.toLowerCase()) &&
       isSameLayanan(
         { idLayanan: r.idLayanan, service: r.service },
         layanan,
@@ -220,7 +221,7 @@ export async function getActiveSlotBookingCountsForLayanan(
   for (const r of data) {
     if (
       r.date !== date ||
-      !['waiting', 'called'].includes(r.status.toLowerCase()) ||
+      !['waiting', 'called', 'completed'].includes(r.status.toLowerCase()) ||
       !isSameLayanan({ idLayanan: r.idLayanan, service: r.service }, layanan)
     ) {
       continue
@@ -269,9 +270,11 @@ export async function updateReservationRecord(
     | 'CANCELLED'
 
   let layananId: bigint | null = null
-  if (body.idLayanan && !isFallbackLayananId(body.idLayanan)) {
+  if (body.idLayanan) {
     try {
       layananId = BigInt(body.idLayanan)
+      const exists = await prisma.layanan.findUnique({ where: { id: layananId } })
+      if (!exists) layananId = null
     } catch {
       layananId = null
     }
@@ -289,7 +292,7 @@ export async function updateReservationRecord(
       purpose: body.purpose,
       service: body.service,
       idLayanan: layananId,
-      date: new Date(y, m - 1, d),
+      date: new Date(Date.UTC(y, m - 1, d)),
       timeSlot: body.timeSlot,
       status: prismaStatus,
     },

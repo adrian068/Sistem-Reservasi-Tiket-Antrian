@@ -40,22 +40,22 @@ export async function resolveLayananForReservation(input: {
   const idLayanan = input.idLayanan?.trim() || null
 
   if (idLayanan) {
+    try {
+      const layanan = await prisma.layanan.findUnique({
+        where: { id: BigInt(idLayanan) },
+      })
+      if (layanan && layanan.isActive !== false) {
+        const resolved = resolveFromName(layanan.name, idLayanan)
+        if (resolved) return resolved
+      }
+    } catch {
+      // lanjut ke fallback
+    }
+
     if (isFallbackLayananId(idLayanan)) {
       const fallback = FALLBACK_LAYANANS.find((l) => l.id === idLayanan)
       if (fallback) {
         return resolveFromName(fallback.name, fallback.id)
-      }
-    } else {
-      try {
-        const layanan = await prisma.layanan.findUnique({
-          where: { id: BigInt(idLayanan) },
-        })
-        if (layanan?.isActive !== false) {
-          const resolved = resolveFromName(layanan.name, idLayanan)
-          if (resolved) return resolved
-        }
-      } catch {
-        // lanjut ke fallback nama layanan
       }
     }
   }

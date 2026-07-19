@@ -11,7 +11,14 @@ export async function GET(request: NextRequest) {
   try {
     const date = request.nextUrl.searchParams.get('date') ?? undefined
     const data = await getPaudDashboardData(date ?? undefined)
-    return NextResponse.json({ success: true, data })
+    return NextResponse.json(
+      { success: true, data },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+        },
+      },
+    )
   } catch (error) {
     console.error('GET paud dashboard error:', error)
     return NextResponse.json({ error: 'Gagal memuat dashboard PAUD' }, { status: 500 })

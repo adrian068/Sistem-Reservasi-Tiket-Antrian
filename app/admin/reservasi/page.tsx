@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -44,6 +44,7 @@ import { buildAdminNavigation } from "@/lib/admin-navigation"
 import { AdminModeSwitch } from "@/components/admin-mode-switch"
 import { AdminSidebarBrand } from "@/components/admin-sidebar-brand"
 import { getTimeSlotsForDateString } from "@/lib/time-slots"
+import { useTimeSlotSync } from "@/hooks/use-time-slot-sync"
 
 interface Layanan {
   id: string
@@ -152,23 +153,28 @@ export default function AdminReservationsPage() {
 
 
   // Fetch reservations from API
-  useEffect(() => {
-    const fetchReservations = async () => {
-      try {
-        const response = await fetch('/api/reservations')
-        if (response.ok) {
-          const data = await response.json()
-          setReservations(data.data || [])
-        }
-      } catch (error) {
-        console.error('Error fetching reservations:', error)
-      } finally {
-        setLoading(false)
+  const fetchReservations = useCallback(async () => {
+    try {
+      const response = await fetch("/api/reservations", { cache: "no-store" })
+      if (response.ok) {
+        const data = await response.json()
+        setReservations(data.data || [])
       }
+    } catch (error) {
+      console.error("Error fetching reservations:", error)
+    } finally {
+      setLoading(false)
     }
-
-    fetchReservations()
   }, [])
+
+  useEffect(() => {
+    fetchReservations()
+  }, [fetchReservations])
+
+  useTimeSlotSync({
+    enabled: true,
+    onRefresh: fetchReservations,
+  })
 
   const navigationItems = buildAdminNavigation("/admin/reservasi")
 

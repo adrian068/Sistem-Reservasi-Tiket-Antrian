@@ -22,6 +22,9 @@ export function getLocalTimeIndonesia(): {
   minute: number
   date: Date
   ymd: string
+  year: number
+  month: number
+  dayNum: number
 } {
   const now = new Date()
 
@@ -44,8 +47,20 @@ export function getLocalTimeIndonesia(): {
   const month = parseInt(parts.find((p) => p.type === "month")?.value || "0", 10)
   const year = parseInt(parts.find((p) => p.type === "year")?.value || "0", 10)
 
-  const date = new Date(year, month - 1, dayNum, hour, minute)
-  const day = date.getDay()
+  // Gunakan UTC agar representasi waktu WITA konsisten di server & client (tanpa terpengaruh timezone lokal)
+  const date = new Date(Date.UTC(year, month - 1, dayNum, hour, minute))
+  
+  const weekdayName = parts.find((p) => p.type === "weekday")?.value
+  const weekdayMap: Record<string, number> = {
+    Sunday: 0,
+    Monday: 1,
+    Tuesday: 2,
+    Wednesday: 3,
+    Thursday: 4,
+    Friday: 5,
+    Saturday: 6,
+  }
+  const day = weekdayName ? (weekdayMap[weekdayName] ?? date.getUTCDay()) : date.getUTCDay()
   const ymd = `${year}-${String(month).padStart(2, "0")}-${String(dayNum).padStart(2, "0")}`
 
   return {
@@ -54,6 +69,9 @@ export function getLocalTimeIndonesia(): {
     minute,
     date,
     ymd,
+    year,
+    month,
+    dayNum,
   }
 }
 
@@ -90,14 +108,12 @@ export function checkReservationStatus(): ReservationStatus {
   const currentHour = localTime.hour
   const currentMinute = localTime.minute
   const currentTime = currentHour * 60 + currentMinute // Total menit sejak 00:00
-  const now = localTime.date
+  const { date: now, year, month, dayNum } = localTime
 
   // Sabtu (6) dan Minggu (0) - selalu tutup
   if (currentDay === 0 || currentDay === 6) {
-    const nextMonday = new Date(now)
     const daysUntilMonday = currentDay === 0 ? 1 : 2
-    nextMonday.setDate(now.getDate() + daysUntilMonday)
-    nextMonday.setHours(8, 0, 0, 0)
+    const nextMonday = new Date(Date.UTC(year, month - 1, dayNum + daysUntilMonday, 0, 0, 0, 0))
     
     return {
       isOpen: false,
@@ -126,15 +142,13 @@ export function checkReservationStatus(): ReservationStatus {
       }
     } else {
       // Setelah jam 10:00, tutup sampai Senin 08:00
-      const nextMonday = new Date(now)
-      nextMonday.setDate(now.getDate() + 3) // Jumat + 3 hari = Senin
-      nextMonday.setHours(8, 0, 0, 0)
+      const nextMonday = new Date(Date.UTC(year, month - 1, dayNum + 3, 0, 0, 0, 0))
       
       return {
         isOpen: false,
         message: "Reservasi tutup. Jumat hanya buka 08:00 - 10:00",
         nextOpenTime: nextMonday.toLocaleString('id-ID', {
-          timeZone: 'Asia/Jakarta',
+          timeZone: 'Asia/Makassar',
           weekday: 'long',
           day: 'numeric',
           month: 'long',
@@ -161,20 +175,17 @@ export function checkReservationStatus(): ReservationStatus {
     
     if (currentTime < openTime) {
       // Masih hari yang sama, buka jam 08:00
-      nextOpenTime = new Date(now)
-      nextOpenTime.setHours(8, 0, 0, 0)
+      nextOpenTime = new Date(Date.UTC(year, month - 1, dayNum, 0, 0, 0, 0))
     } else {
       // Setelah jam 16:00, buka besok jam 08:00
-      nextOpenTime = new Date(now)
-      nextOpenTime.setDate(now.getDate() + 1)
-      nextOpenTime.setHours(8, 0, 0, 0)
+      nextOpenTime = new Date(Date.UTC(year, month - 1, dayNum + 1, 0, 0, 0, 0))
     }
     
     return {
       isOpen: false,
       message: "Reservasi tutup. Buka kembali jam 08:00",
       nextOpenTime: nextOpenTime.toLocaleString('id-ID', {
-        timeZone: 'Asia/Jakarta',
+        timeZone: 'Asia/Makassar',
         weekday: 'long',
         day: 'numeric',
         month: 'long',
@@ -207,8 +218,18 @@ export function isValidReservationTime(date: Date, timeSlot: string): boolean {
  * @param timeSlot Slot waktu dalam format "HH:MM" (waktu awal slot)
  * @returns true jika slot waktu sudah lewat dan tidak bisa booking untuk hari ini
  */
-export function isTimeSlotPassed(selectedDate: Date, timeSlot: string): boolean {
-  if (!isSameCalendarDayAsWitaToday(selectedDate)) {
+export function isTimeSlotPassed(selectedDate: Date | string, timeSlot: string): boolean {
+  let dateYmd: string
+  if (typeof selectedDate === 'string') {
+    dateYmd = selectedDate
+  } else {
+    const y = selectedDate.getFullYear()
+    const m = String(selectedDate.getMonth() + 1).padStart(2, "0")
+    const d = String(selectedDate.getDate()).padStart(2, "0")
+    dateYmd = `${y}-${m}-${d}`
+  }
+
+  if (dateYmd !== getWitaTodayYmd()) {
     return false
   }
 

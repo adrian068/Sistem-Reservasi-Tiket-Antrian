@@ -3,6 +3,8 @@ import { getTimeSlotsForDay } from "@/lib/time-slots"
 import { getActiveSlotBookingCountsForLayanan } from "@/lib/reservations-service"
 import { getSlotCapacityForLayanan } from "@/lib/slot-capacity"
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)

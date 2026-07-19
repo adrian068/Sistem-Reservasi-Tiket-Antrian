@@ -1,5 +1,10 @@
 import { type NextRequest, NextResponse } from 'next/server'
-import { isValidReservationTime, isTimeSlotPassed } from '@/lib/reservation-hours'
+import {
+  getWitaTodayYmd,
+  isValidReservationTime,
+  isTimeSlotPassed,
+  RESERVATION_TIMEZONE,
+} from '@/lib/reservation-hours'
 import { getReservationSettings } from '@/lib/reservation-settings-store'
 import { resolveReservationStatus } from '@/lib/reservation-status'
 import { resolveLayananForReservation } from '@/lib/layanan-resolve'
@@ -12,10 +17,19 @@ import {
 import { isFallbackLayananId } from '@/lib/reservations-fallback-store'
 import { getSlotCapacityForLayanan } from '@/lib/slot-capacity'
 
+export const dynamic = 'force-dynamic'
+
 function calculateEstimatedTime(): string {
   const estimatedTime = new Date(Date.now() + 30 * 60000)
-  const hours = estimatedTime.getHours().toString().padStart(2, '0')
-  const minutes = estimatedTime.getMinutes().toString().padStart(2, '0')
+  const formatter = new Intl.DateTimeFormat('en-GB', {
+    timeZone: RESERVATION_TIMEZONE,
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  })
+  const parts = formatter.formatToParts(estimatedTime)
+  const hours = parts.find((p) => p.type === 'hour')?.value ?? '00'
+  const minutes = parts.find((p) => p.type === 'minute')?.value ?? '00'
   return `${hours}:${minutes}`
 }
 
@@ -53,11 +67,8 @@ export async function POST(request: NextRequest) {
 
     const [y, m, d] = date.split('-').map(Number)
     const reservationDate = new Date(y, m - 1, d)
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    reservationDate.setHours(0, 0, 0, 0)
 
-    if (reservationDate < today) {
+    if (date < getWitaTodayYmd()) {
       return NextResponse.json(
         {
           success: false,
@@ -138,6 +149,10 @@ export async function POST(request: NextRequest) {
         bidangSlug: resolvedLayanan.bidangSlug,
         serviceKey: resolvedLayanan.serviceKey,
       },
+    }, {
+      headers: {
+        "Cache-Control": "no-store, no-cache, must-revalidate",
+      },
     })
   } catch (error) {
     console.error('Error creating reservation:', error)
@@ -148,7 +163,14 @@ export async function POST(request: NextRequest) {
 export async function GET() {
   try {
     const { data } = await listAllReservations()
-    return NextResponse.json({ success: true, data })
+    return NextResponse.json(
+      { success: true, data },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+        },
+      },
+    )
   } catch (error) {
     console.error('Error fetching reservations:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

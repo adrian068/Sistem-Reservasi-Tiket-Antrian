@@ -6,7 +6,7 @@ import { getReservationSettings } from './reservation-settings-store'
 import { resolveReservationStatus } from './reservation-status'
 import { listAllReservations } from './reservations-service'
 import { getServiceKey, todayLocalYmd, SERVICE_LABELS, type ServiceKey } from './queue-service-key'
-import { getTimeSlotsForDateString, parseSlotStartTime } from './time-slots'
+import { getTimeSlotsForDateString, parseSlotStartTime, parseTimeSlotToMinutes } from './time-slots'
 import { summarizeBidangPresence, getBidangPresence } from './bidang-presence-store'
 import { getSlotCapacityForBidangSlug } from './slot-capacity'
 
@@ -34,16 +34,20 @@ export type BidangSlotRow = {
 }
 
 function isReservationForService(
-  r: { service?: string; layanan?: { name?: string | null } | null },
+  r: { service?: string | null; idLayanan?: string | null; layanan?: { name?: string | null; id?: string | null } | null },
   serviceKey: ServiceKey,
 ): boolean {
   return getServiceKey(r) === serviceKey
 }
 
 function sortBySlotThenCreated(a: BidangReservationRow, b: BidangReservationRow) {
-  const slotDiff = a.slotStart.localeCompare(b.slotStart)
+  const slotDiff = parseTimeSlotToMinutes(a.slotStart) - parseTimeSlotToMinutes(b.slotStart)
   if (slotDiff !== 0) return slotDiff
   return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+}
+
+function sortByMostRecentlyUpdated(a: BidangReservationRow, b: BidangReservationRow) {
+  return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
 }
 
 export async function listBidangReservationsForDate(
@@ -87,7 +91,7 @@ export async function getBidangDashboardData(bidangSlug: BidangSlug, dateYmd?: s
     (r) => !['cancelled', 'completed'].includes(r.status),
   )
   const waiting = active.filter((r) => r.status === 'waiting')
-  const called = active.filter((r) => r.status === 'called')
+  const called = active.filter((r) => r.status === 'called').sort(sortByMostRecentlyUpdated)
   const completedToday = reservations.filter((r) => r.status === 'completed')
 
   const slotConfig = getTimeSlotsForDateString(today)
@@ -99,8 +103,9 @@ export async function getBidangDashboardData(bidangSlug: BidangSlug, dateYmd?: s
           (r.timeSlot === slot.id ||
             r.timeSlot === slot.time ||
             r.slotStart === parseSlotStartTime(slot.id)) &&
-          ['waiting', 'called'].includes(r.status),
+          ['waiting', 'called', 'completed'].includes(r.status),
       )
+      .sort(sortBySlotThenCreated)
       .map((r) => ({
         id: r.id,
         queueNumber: r.queueNumber,

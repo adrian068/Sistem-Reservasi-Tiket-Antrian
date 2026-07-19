@@ -5,6 +5,8 @@ import {
   shouldUseFallbackForDbError,
 } from "@/lib/api-fallback-data"
 
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
   try {
     const layanans = await prisma.layanan.findMany({

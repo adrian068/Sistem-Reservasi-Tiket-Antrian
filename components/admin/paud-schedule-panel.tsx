@@ -101,7 +101,15 @@ export function PaudSchedulePanel() {
               Jam operasional dan tamu per slot hari ini
             </p>
           </div>
-          <Button variant="outline" size="sm" onClick={fetchData} disabled={loading}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setLoading(true)
+              void fetchData()
+            }}
+            disabled={loading}
+          >
             <RefreshCw className={cn("w-4 h-4", loading && "animate-spin")} />
           </Button>
         </div>

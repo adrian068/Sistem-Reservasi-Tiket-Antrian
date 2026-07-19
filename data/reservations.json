@@ -105,10 +105,10 @@
     "purpose": "bbbb",
     "date": "2026-06-04",
     "timeSlot": "11:10|long",
-    "status": "waiting",
+    "status": "called",
     "estimatedCallTime": "17:00",
     "id": "local-1780479034522-3v46y5",
     "createdAt": "2026-06-03T09:30:34.522Z",
-    "updatedAt": "2026-06-03T09:30:34.522Z"
+    "updatedAt": "2026-07-19T23:04:59.739Z"
   }
 ]

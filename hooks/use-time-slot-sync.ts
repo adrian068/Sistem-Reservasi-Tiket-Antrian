@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react"
 import { getSupabaseBrowser } from "@/lib/supabase-browser"
 
-const DEFAULT_INTERVAL_MS = 3000
+const DEFAULT_INTERVAL_MS = 2000
 
 type UseTimeSlotSyncOptions = {
   /** Aktifkan polling / realtime */

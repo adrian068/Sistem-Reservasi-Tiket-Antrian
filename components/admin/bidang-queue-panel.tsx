@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { getBidangConfig, type BidangSlug } from "@/lib/bidang-config"
+import { useTimeSlotSync } from "@/hooks/use-time-slot-sync"
 import {
   BellRing,
   CheckCircle2,
@@ -80,9 +81,12 @@ export function BidangQueuePanel({
 
   useEffect(() => {
     fetchData()
-    const interval = setInterval(fetchData, 10000)
-    return () => clearInterval(interval)
   }, [fetchData])
+
+  useTimeSlotSync({
+    enabled: true,
+    onRefresh: fetchData,
+  })
 
   const updateStatus = async (
     id: string,
@@ -137,7 +141,15 @@ export function BidangQueuePanel({
               ruangan
             </p>
           </div>
-          <Button variant="outline" size="sm" onClick={fetchData} disabled={loading}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setLoading(true)
+              void fetchData()
+            }}
+            disabled={loading}
+          >
             <RefreshCw className={cn("w-4 h-4", loading && "animate-spin")} />
           </Button>
         </div>

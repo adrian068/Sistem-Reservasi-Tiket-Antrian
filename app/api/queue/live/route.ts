@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { listAllReservations } from "@/lib/reservations-service"
+import { parseSlotStartTime, parseTimeSlotToMinutes } from "@/lib/time-slots"
 import {
   SERVICE_KEYS,
   SERVICE_LABELS_LONG,
@@ -15,6 +16,7 @@ type QueueReservation = {
   service?: string
   layanan?: { name?: string | null } | null
   date: string
+  timeSlot?: string
   status: string
   createdAt: string
   updatedAt: string
@@ -43,10 +45,13 @@ export async function GET() {
 
       const waiting = forService
         .filter((r) => r.status.toLowerCase() === "waiting")
-        .sort(
-          (a, b) =>
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-        )
+        .sort((a, b) => {
+          const slotDiff =
+            parseTimeSlotToMinutes(parseSlotStartTime(a.timeSlot ?? "")) -
+            parseTimeSlotToMinutes(parseSlotStartTime(b.timeSlot ?? ""))
+          if (slotDiff !== 0) return slotDiff
+          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        })
         .map((r, index) => ({
           queueNumber: r.queueNumber,
           position: index + 1,

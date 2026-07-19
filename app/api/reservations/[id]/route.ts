@@ -1,5 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { resolveLayananForReservation } from '@/lib/layanan-resolve'
+import { getServiceKey, SERVICE_LABELS, type ServiceKey } from '@/lib/queue-service-key'
 import {
   deleteReservationRecord,
   getReservationRecord,
@@ -36,18 +38,32 @@ export async function PUT(
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
+    const resolvedLayanan = await resolveLayananForReservation({ service, idLayanan })
+    if (!resolvedLayanan) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Layanan tidak valid. Silakan pilih PTK, PAUD, SD Umum, atau SMP Umum.',
+        },
+        { status: 400 },
+      )
+    }
+
+    const canonicalService = resolvedLayanan.service
+    const canonicalIdLayanan = resolvedLayanan.idLayanan
+
     const normalizedStatus = String(status).toUpperCase()
     if (!['WAITING', 'CALLED', 'COMPLETED', 'CANCELLED'].includes(normalizedStatus)) {
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
     }
 
     if (
-      idLayanan &&
-      !isFallbackLayananId(idLayanan) &&
+      canonicalIdLayanan &&
+      !isFallbackLayananId(canonicalIdLayanan) &&
       !isFallbackReservationId(params.id)
     ) {
       try {
-        const layananId = BigInt(idLayanan)
+        const layananId = BigInt(canonicalIdLayanan)
         const layananExists = await prisma.layanan.findUnique({
           where: { id: layananId },
         })
@@ -64,47 +80,27 @@ export async function PUT(
 
     if (normalizedStatus === 'CALLED' && !isFallbackReservationId(params.id)) {
       try {
-        const currentReservation = await prisma.reservasi.findUnique({
-          where: { id: params.id },
-          include: { layanan: true },
-        })
+        const serviceKey = resolvedLayanan.serviceKey
+        const label = SERVICE_LABELS[serviceKey as ServiceKey]
 
-        if (currentReservation) {
-          const serviceKey = service.toLowerCase().trim()
-          const serviceName = currentReservation.layanan?.name?.toLowerCase().trim()
-          const serviceConditions: object[] = []
-
-          if (serviceKey) {
-            serviceConditions.push({
-              service: { contains: serviceKey, mode: 'insensitive' as const },
-            })
-          }
-
-          if (idLayanan && !isFallbackLayananId(idLayanan)) {
-            serviceConditions.push({ idLayanan: BigInt(idLayanan) })
-          }
-
-          if (serviceName) {
-            serviceConditions.push({
-              layanan: {
-                name: { contains: serviceName, mode: 'insensitive' as const },
-              },
-            })
-          }
-
-          if (serviceConditions.length > 0) {
-            await prisma.reservasi.updateMany({
-              where: {
-                AND: [
-                  { id: { not: params.id } },
-                  { status: 'CALLED' },
-                  { OR: serviceConditions },
+        await prisma.reservasi.updateMany({
+          where: {
+            AND: [
+              { id: { not: params.id } },
+              { status: 'CALLED' },
+              {
+                OR: [
+                  { service: { contains: label, mode: 'insensitive' as const } },
+                  { layanan: { name: { contains: label, mode: 'insensitive' as const } } },
+                  ...(canonicalIdLayanan && !isFallbackLayananId(canonicalIdLayanan)
+                    ? [{ idLayanan: BigInt(canonicalIdLayanan) }]
+                    : []),
                 ],
               },
-              data: { status: 'COMPLETED' },
-            })
-          }
-        }
+            ],
+          },
+          data: { status: 'COMPLETED' },
+        })
       } catch (autoCompleteError) {
         console.error('Error in auto-complete logic:', autoCompleteError)
       }
@@ -115,11 +111,11 @@ export async function PUT(
       phone,
       nik,
       purpose,
-      service,
+      service: canonicalService,
       date,
       timeSlot,
       status: normalizedStatus,
-      idLayanan: idLayanan ?? null,
+      idLayanan: canonicalIdLayanan,
     })
 
     if (!data) {

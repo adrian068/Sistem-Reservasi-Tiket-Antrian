@@ -5,11 +5,11 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-/** Format Date ke YYYY-MM-DD tanpa geser timezone (WITA/lokal server). */
+/** Format kolom @db.Date Prisma ke YYYY-MM-DD (UTC midnight, tanpa geser hari). */
 export function formatLocalDateYmd(date: Date): string {
-  const y = date.getFullYear()
-  const m = String(date.getMonth() + 1).padStart(2, "0")
-  const d = String(date.getDate()).padStart(2, "0")
+  const y = date.getUTCFullYear()
+  const m = String(date.getUTCMonth() + 1).padStart(2, "0")
+  const d = String(date.getUTCDate()).padStart(2, "0")
   return `${y}-${m}-${d}`
 }
 
@@ -40,23 +40,20 @@ export function resolveImageUrl(url?: string | null) {
   return `/${trimmed.replace(/^\/+/, "")}`
 }
 
+import { getLocalTimeIndonesia } from "./reservation-hours"
+
 // Reservation time validation helpers for WITA
 export function getNowWita(): Date {
-  const now = new Date()
-  // Using Intl for timezone formatting elsewhere; for logic, assume server clock in UTC and compute offset if needed.
-  // For simplicity and consistency, rely on server time with Asia/Makassar offset derived via locale where used.
-  return now
+  return getLocalTimeIndonesia().date
 }
 
 export function parseTimeSlotToDateWita(dateStr: string, timeSlot: string): Date | null {
-  // timeSlot expected format "HH:MM" or "HH:MM-HH:MM"; we use start time
   try {
     const [start] = timeSlot.split('-')
     const [hh, mm] = start.split(':').map(Number)
-    const d = new Date(dateStr)
-    if (Number.isNaN(hh) || Number.isNaN(mm)) return null
-    d.setHours(hh, mm, 0, 0)
-    return d
+    const [y, m, d] = dateStr.split('-').map(Number)
+    if (Number.isNaN(hh) || Number.isNaN(mm) || Number.isNaN(y) || Number.isNaN(m) || Number.isNaN(d)) return null
+    return new Date(Date.UTC(y, m - 1, d, hh, mm, 0, 0))
   } catch {
     return null
   }
