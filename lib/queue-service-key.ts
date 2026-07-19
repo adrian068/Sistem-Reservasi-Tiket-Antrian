@@ -10,7 +10,15 @@ export const SERVICE_LABELS: Record<ServiceKey, string> = {
 }
 
 export const SERVICE_LABELS_LONG: Record<ServiceKey, string> = {
-  ptk: "PTK (Pendidik & Tenaga Kependidikan)",
+  ptk: "PTK (Pendidik dan Tenaga Kependidikan)",
+  sd: "SD Umum",
+  smp: "SMP Umum",
+  paud: "PAUD",
+}
+
+/** Nama layanan resmi — dipakai saat menyimpan reservasi agar routing bidang konsisten. */
+export const CANONICAL_SERVICE_NAMES: Record<ServiceKey, string> = {
+  ptk: "PTK (Pendidik dan Tenaga Kependidikan)",
   sd: "SD Umum",
   smp: "SMP Umum",
   paud: "PAUD",
@@ -18,6 +26,7 @@ export const SERVICE_LABELS_LONG: Record<ServiceKey, string> = {
 
 const SERVICE_NAME_MAP: Record<string, ServiceKey> = {
   "ptk (pendidik dan tenaga kependidikan)": "ptk",
+  "ptk (pendidik & tenaga kependidikan)": "ptk",
   ptk: "ptk",
   "sd umum": "sd",
   sd: "sd",
@@ -26,23 +35,48 @@ const SERVICE_NAME_MAP: Record<string, ServiceKey> = {
   paud: "paud",
 }
 
+function normalizeServiceText(value: string): string {
+  return value.trim().toLowerCase().replace(/\s*&\s*/g, " dan ")
+}
+
+function lookupServiceKey(value: string): ServiceKey | null {
+  const normalized = normalizeServiceText(value)
+  const exact = SERVICE_NAME_MAP[normalized]
+  if (exact) return exact
+  if (SERVICE_KEYS.includes(normalized as ServiceKey)) {
+    return normalized as ServiceKey
+  }
+
+  if (normalized.includes("smp")) return "smp"
+  if (normalized.includes("sd umum") || normalized === "sd") return "sd"
+  if (normalized.includes("ptk")) return "ptk"
+  if (normalized.includes("paud")) return "paud"
+
+  return null
+}
+
 export function getServiceKey(input: {
   service?: string | null
   layanan?: { name?: string | null } | null
 }): ServiceKey | null {
   if (input.layanan?.name) {
-    const key = SERVICE_NAME_MAP[input.layanan.name.trim().toLowerCase()]
+    const key = lookupServiceKey(input.layanan.name)
     if (key) return key
   }
   if (input.service) {
-    const normalized = input.service.trim().toLowerCase()
-    const key = SERVICE_NAME_MAP[normalized]
-    if (key) return key
-    if (SERVICE_KEYS.includes(normalized as ServiceKey)) {
-      return normalized as ServiceKey
-    }
+    return lookupServiceKey(input.service)
   }
   return null
+}
+
+export function getBidangSlugForServiceKey(serviceKey: ServiceKey): string {
+  const map: Record<ServiceKey, string> = {
+    paud: "paud",
+    ptk: "ptk",
+    sd: "sd-umum",
+    smp: "smp-umum",
+  }
+  return map[serviceKey]
 }
 
 export function todayLocalYmd(): string {

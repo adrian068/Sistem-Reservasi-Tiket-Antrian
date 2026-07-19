@@ -34,6 +34,14 @@ function isPublicPath(pathname: string): boolean {
   return false
 }
 
+/** Masyarakat boleh membuat reservasi tanpa login; GET tetap butuh admin. */
+function isPublicReservationCreate(request: NextRequest): boolean {
+  return (
+    request.method === 'POST' &&
+    request.nextUrl.pathname === '/api/reservations'
+  )
+}
+
 type SessionPayload = {
   id?: string
   email?: string
@@ -130,6 +138,10 @@ export function middleware(request: NextRequest) {
         new URL(isAdminSession(request) ? '/admin/dashboard' : '/reservasi', request.url),
       )
     }
+  }
+
+  if (isPublicReservationCreate(request)) {
+    return NextResponse.next()
   }
 
   if (isPublicPath(pathname)) {

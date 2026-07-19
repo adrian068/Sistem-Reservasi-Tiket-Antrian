@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { isValidReservationTime, isTimeSlotPassed } from '@/lib/reservation-hours'
 import { getReservationSettings } from '@/lib/reservation-settings-store'
 import { resolveReservationStatus } from '@/lib/reservation-status'
+import { resolveLayananForReservation } from '@/lib/layanan-resolve'
 import {
   countActiveSlotBookings,
   createReservationRecord,
@@ -26,6 +27,20 @@ export async function POST(request: NextRequest) {
     if (!service || !date || !timeSlot || !name || !phone || !purpose) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
+
+    const resolvedLayanan = await resolveLayananForReservation({ service, idLayanan })
+    if (!resolvedLayanan) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Layanan tidak valid. Silakan pilih PTK, PAUD, SD Umum, atau SMP Umum.',
+        },
+        { status: 400 },
+      )
+    }
+
+    const canonicalService = resolvedLayanan.service
+    const canonicalIdLayanan = resolvedLayanan.idLayanan
 
     const settings = await getReservationSettings()
     const gate = resolveReservationStatus(settings)
@@ -75,15 +90,17 @@ export async function POST(request: NextRequest) {
     }
 
     const layananIdForQueue =
-      idLayanan && !isFallbackLayananId(idLayanan) ? idLayanan : null
+      canonicalIdLayanan && !isFallbackLayananId(canonicalIdLayanan)
+        ? canonicalIdLayanan
+        : null
 
     const existingReservations = await countActiveSlotBookings(date, timeSlot, {
-      idLayanan: idLayanan ?? null,
-      service,
+      idLayanan: canonicalIdLayanan,
+      service: canonicalService,
     })
     const maxCapacity = await getSlotCapacityForLayanan({
-      idLayanan: idLayanan ?? null,
-      service,
+      idLayanan: canonicalIdLayanan,
+      service: canonicalService,
     })
     if (existingReservations >= maxCapacity) {
       return NextResponse.json(
@@ -96,25 +113,32 @@ export async function POST(request: NextRequest) {
     }
 
     const queueNumber = await generateQueueNumberForService(
-      service,
+      canonicalService,
       layananIdForQueue,
     )
     const estimatedCallTime = calculateEstimatedTime()
 
     const { data } = await createReservationRecord({
-      service,
+      service: canonicalService,
       date,
       timeSlot,
       name,
       phone,
       purpose,
       nik: body.nik || null,
-      idLayanan: idLayanan ?? null,
+      idLayanan: canonicalIdLayanan,
       queueNumber,
       estimatedCallTime,
     })
 
-    return NextResponse.json({ success: true, data })
+    return NextResponse.json({
+      success: true,
+      data: {
+        ...data,
+        bidangSlug: resolvedLayanan.bidangSlug,
+        serviceKey: resolvedLayanan.serviceKey,
+      },
+    })
   } catch (error) {
     console.error('Error creating reservation:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
