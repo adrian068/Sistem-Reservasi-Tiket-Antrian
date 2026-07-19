@@ -13,6 +13,7 @@ import {
   loginUsernameFromEmail,
   toLocalSessionId,
   verifyLocalPassword,
+  upsertLocalUserMirror,
 } from './local-users-store'
 import {
   isSuperAdminAccountEmail,
@@ -162,7 +163,6 @@ async function mirrorAdminCredentials(input: {
   const passwordHash = await hashPassword(input.password)
 
   try {
-    const { upsertLocalUserMirror } = await import('./local-users-store')
     await upsertLocalUserMirror({
       nama: input.nama.trim(),
       email: normalizedEmail,
@@ -240,16 +240,19 @@ export async function registerUser(
       },
     })
 
-    const mirrored = await mirrorAdminCredentials({
-      nama: trimmedNama,
-      email: normalizedEmail,
-      password,
-      peran,
-      bidangSlug,
-    })
-    if (!mirrored.ok) {
-      await prisma.pengguna.delete({ where: { id: pengguna.id } }).catch(() => {})
-      return mirrored
+    const isAdmin = peran === 'ADMIN' || peran === 'SUPER_ADMIN' || peran === 'ADMIN_PAUD'
+    if (isAdmin) {
+      const mirrored = await mirrorAdminCredentials({
+        nama: trimmedNama,
+        email: normalizedEmail,
+        password,
+        peran,
+        bidangSlug,
+      })
+      if (!mirrored.ok) {
+        await prisma.pengguna.delete({ where: { id: pengguna.id } }).catch(() => {})
+        return mirrored
+      }
     }
 
     const loginOk = await verifyAdminLogin(normalizedEmail, password)
