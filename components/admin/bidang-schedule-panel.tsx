@@ -35,7 +35,7 @@ type ScheduleData = {
 
 const DAY_NAMES = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"]
 
-export function BidangSchedulePanel({ bidangSlug }: { bidangSlug: BidangSlug }) {
+export function BidangSchedulePanel({ bidangSlug, date }: { bidangSlug: BidangSlug; date?: string }) {
   const config = getBidangConfig(bidangSlug)!
   const [data, setData] = useState<ScheduleData | null>(null)
   const [loading, setLoading] = useState(true)
@@ -45,7 +45,10 @@ export function BidangSchedulePanel({ bidangSlug }: { bidangSlug: BidangSlug }) 
   const fetchData = useCallback(async () => {
     setError("")
     try {
-      const res = await fetch(`/api/admin/bidang/${bidangSlug}/dashboard`, {
+      const url = date
+        ? `/api/admin/bidang/${bidangSlug}/dashboard?date=${date}`
+        : `/api/admin/bidang/${bidangSlug}/dashboard`
+      const res = await fetch(url, {
         cache: "no-store",
       })
       const json = await res.json()
@@ -59,7 +62,7 @@ export function BidangSchedulePanel({ bidangSlug }: { bidangSlug: BidangSlug }) 
     } finally {
       setLoading(false)
     }
-  }, [bidangSlug])
+  }, [bidangSlug, date])
 
   useEffect(() => {
     fetchData()

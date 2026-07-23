@@ -68,7 +68,7 @@ export function SiteUserMenu({ variant = "header", onNavigate }: SiteUserMenuPro
   const firstName = user.nama.split(" ")[0] || user.nama
   const showAdminPanel = isAdminUser(user)
   const adminHref = getAdminHomePath(user)
-  const adminLabel = isSuperAdminUser(user) ? "Super Admin" : "Admin"
+  const adminLabel = "Admin"
 
   if (variant === "mobile") {
     return (
@@ -83,7 +83,7 @@ export function SiteUserMenu({ variant = "header", onNavigate }: SiteUserMenuPro
               className="flex items-center gap-2 px-4 py-3 rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
             >
               <LayoutDashboard className="w-4 h-4" />
-              Admin
+              Loket
             </Link>
             <Link
               href="/admin/super/dashboard"
@@ -91,7 +91,7 @@ export function SiteUserMenu({ variant = "header", onNavigate }: SiteUserMenuPro
               className="flex items-center gap-2 px-4 py-3 rounded-lg text-brand-accent hover:bg-violet-50 dark:hover:bg-violet-950/30 transition-colors"
             >
               <LayoutDashboard className="w-4 h-4" />
-              Super Admin
+              Admin
             </Link>
           </>
         )}
@@ -139,7 +139,7 @@ export function SiteUserMenu({ variant = "header", onNavigate }: SiteUserMenuPro
           <Button variant="outline" size="sm" asChild className="h-9">
             <Link href="/admin/dashboard">
               <LayoutDashboard className="w-4 h-4 mr-1.5" />
-              Admin
+              Loket
             </Link>
           </Button>
           <Button
@@ -150,7 +150,7 @@ export function SiteUserMenu({ variant = "header", onNavigate }: SiteUserMenuPro
           >
             <Link href="/admin/super/dashboard">
               <LayoutDashboard className="w-4 h-4 mr-1.5" />
-              Super Admin
+              Admin
             </Link>
           </Button>
         </>

@@ -49,9 +49,13 @@ const STATUS_LABEL: Record<string, string> = {
 
 export function BidangQueuePanel({
   bidangSlug,
+  date,
+  onDateInit,
   editable = true,
 }: {
   bidangSlug: BidangSlug
+  date?: string
+  onDateInit?: (d: string) => void
   editable?: boolean
 }) {
   const config = getBidangConfig(bidangSlug)!
@@ -63,7 +67,10 @@ export function BidangQueuePanel({
   const fetchData = useCallback(async () => {
     setError("")
     try {
-      const res = await fetch(`/api/admin/bidang/${bidangSlug}/dashboard`, {
+      const url = date
+        ? `/api/admin/bidang/${bidangSlug}/dashboard?date=${date}`
+        : `/api/admin/bidang/${bidangSlug}/dashboard`
+      const res = await fetch(url, {
         cache: "no-store",
       })
       const json = await res.json()
@@ -72,12 +79,15 @@ export function BidangQueuePanel({
         return
       }
       setData(json.data)
+      if (json.data?.date && onDateInit) {
+        onDateInit(json.data.date)
+      }
     } catch {
       setError(`Gagal memuat antrian ${config.shortLabel}`)
     } finally {
       setLoading(false)
     }
-  }, [bidangSlug, config.shortLabel])
+  }, [bidangSlug, config.shortLabel, date, onDateInit])
 
   useEffect(() => {
     fetchData()

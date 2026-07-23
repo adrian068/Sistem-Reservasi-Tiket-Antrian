@@ -24,11 +24,11 @@ function buildEmail(username: string, email?: string): string {
 }
 
 function formatPeranLabel(peran: string, bidangSlug?: string | null) {
-  if (peran === 'SUPER_ADMIN') return 'Super Admin'
-  if (peran === 'ADMIN') return 'Admin Loket'
+  if (peran === 'SUPER_ADMIN') return 'Admin'
+  if (peran === 'ADMIN') return 'Petugas Loket'
   if (peran === 'ADMIN_PAUD') {
     const cfg = bidangSlug ? getBidangConfig(bidangSlug) : null
-    return cfg ? `Admin Bidang ${cfg.shortLabel}` : 'Admin Bidang'
+    return cfg ? `Petugas Bidang ${cfg.shortLabel}` : 'Petugas Bidang'
   }
   return peran
 }
@@ -148,7 +148,7 @@ export async function GET() {
     if (message === 'Unauthorized' || message === 'Forbidden') {
       return NextResponse.json({ error: message }, { status: message === 'Forbidden' ? 403 : 401 })
     }
-    return NextResponse.json({ error: 'Gagal memuat daftar admin' }, { status: 500 })
+    return NextResponse.json({ error: 'Gagal memuat daftar petugas' }, { status: 500 })
   }
 }
 
@@ -168,7 +168,7 @@ export async function POST(request: NextRequest) {
 
     if (data.adminType === 'bidang') {
       if (!data.bidangSlug || !isBidangSlug(data.bidangSlug)) {
-        return NextResponse.json({ error: 'Pilih bidang untuk admin bidang' }, { status: 400 })
+        return NextResponse.json({ error: 'Pilih bidang untuk petugas bidang' }, { status: 400 })
       }
 
       const result = await registerUser(
@@ -187,7 +187,7 @@ export async function POST(request: NextRequest) {
       const loginUsername = loginUsernameFromEmail(result.user.email)
       return NextResponse.json({
         success: true,
-        message: `Admin bidang berhasil dibuat. Login dengan username "${loginUsername}" dan kata sandi yang Anda buat.`,
+        message: `Petugas bidang berhasil dibuat. Login dengan username "${loginUsername}" dan kata sandi yang Anda buat.`,
         data: {
           nama: result.user.nama,
           email: result.user.email,
@@ -209,7 +209,7 @@ export async function POST(request: NextRequest) {
     const loginUsername = loginUsernameFromEmail(result.user.email)
     return NextResponse.json({
       success: true,
-      message: `Admin loket berhasil dibuat. Login dengan username "${loginUsername}" dan kata sandi yang Anda buat.`,
+      message: `Petugas loket berhasil dibuat. Login dengan username "${loginUsername}" dan kata sandi yang Anda buat.`,
       data: {
         nama: result.user.nama,
         email: result.user.email,
@@ -228,6 +228,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: message }, { status: message === 'Forbidden' ? 403 : 401 })
     }
     console.error('Create admin error:', error)
-    return NextResponse.json({ error: 'Gagal membuat admin' }, { status: 500 })
+    return NextResponse.json({ error: 'Gagal membuat petugas' }, { status: 500 })
   }
 }

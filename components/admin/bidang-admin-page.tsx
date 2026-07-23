@@ -1,5 +1,6 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { BidangPresencePanel } from "@/components/admin/bidang-presence-panel"
@@ -11,7 +12,7 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { useLogout } from "@/hooks/use-logout"
 import { getBidangConfig, type BidangSlug } from "@/lib/bidang-config"
 import { cn } from "@/lib/utils"
-import { Baby, GraduationCap, LogOut, Menu, School, Users } from "lucide-react"
+import { Baby, GraduationCap, LogOut, Menu, School, User, Users } from "lucide-react"
 
 const BIDANG_ICONS = {
   paud: Baby,
@@ -25,10 +26,12 @@ type BidangAdminPageProps = {
 }
 
 export function BidangAdminPage({ bidangSlug }: BidangAdminPageProps) {
+  const router = useRouter()
   const config = getBidangConfig(bidangSlug)!
   const Icon = BIDANG_ICONS[bidangSlug] ?? GraduationCap
   const { logout, isLoggingOut } = useLogout()
   const [scheduleKey, setScheduleKey] = useState(0)
+  const [selectedDate, setSelectedDate] = useState<string>("")
 
   return (
     <div className="min-h-screen bg-background">
@@ -42,7 +45,7 @@ export function BidangAdminPage({ bidangSlug }: BidangAdminPageProps) {
               </div>
               <div>
                 <h1 className="text-lg font-bold text-foreground">
-                  Admin Bidang {config.shortLabel}
+                  Petugas Bidang {config.shortLabel}
                 </h1>
                 <p className="text-xs text-muted-foreground hidden sm:block">
                   Kelola jadwal, antrian tamu, dan kehadiran petugas
@@ -51,7 +54,21 @@ export function BidangAdminPage({ bidangSlug }: BidangAdminPageProps) {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="px-2.5 py-1 text-sm rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-brand-primary"
+            />
             <ThemeToggle />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => router.push('/admin/profile')}
+            >
+              <User className="w-4 h-4 mr-1" />
+              Profil Saya
+            </Button>
             <Button
               variant="outline"
               size="sm"
@@ -87,14 +104,25 @@ export function BidangAdminPage({ bidangSlug }: BidangAdminPageProps) {
         />
 
         <div className="grid gap-6 lg:grid-cols-2">
-          <BidangQueuePanel bidangSlug={bidangSlug} editable />
-          <BidangSchedulePanel key={scheduleKey} bidangSlug={bidangSlug} />
+          <BidangQueuePanel 
+            bidangSlug={bidangSlug} 
+            date={selectedDate} 
+            onDateInit={(d) => {
+              if (!selectedDate) setSelectedDate(d)
+            }} 
+            editable 
+          />
+          <BidangSchedulePanel 
+            key={scheduleKey + selectedDate} 
+            bidangSlug={bidangSlug} 
+            date={selectedDate} 
+          />
         </div>
 
         <BidangPresencePanel bidangSlug={bidangSlug} editable />
 
         <p className="text-center text-xs text-muted-foreground pb-4">
-          Admin Bidang {config.label} · Dinas Pendidikan Kota Banjarmasin
+          Petugas Bidang {config.label} · Dinas Pendidikan Kota Banjarmasin
         </p>
       </main>
     </div>

@@ -96,7 +96,7 @@ export function PageAuthActions({ loginRedirect = "/reservasi" }: PageAuthAction
           >
             <Link href="/admin/dashboard">
               <LayoutDashboard className="w-4 h-4 mr-1.5" />
-              Admin
+              Loket
             </Link>
           </Button>
           <Button
@@ -107,7 +107,7 @@ export function PageAuthActions({ loginRedirect = "/reservasi" }: PageAuthAction
           >
             <Link href="/admin/super/dashboard">
               <LayoutDashboard className="w-4 h-4 mr-1.5" />
-              Super Admin
+              Admin
             </Link>
           </Button>
         </>

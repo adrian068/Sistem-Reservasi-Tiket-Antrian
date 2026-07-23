@@ -174,7 +174,7 @@ export function BidangPresencePanel({
             <p className="text-sm text-muted-foreground mt-1">
               {showControls
                 ? "Konfirmasi petugas hadir dan berada di ruangan layanan"
-                : "Status petugas dinas di ruang bidang (diperbarui admin bidang)"}
+                : "Status petugas dinas di ruang bidang (diperbarui petugas bidang)"}
             </p>
           </div>
           <Button variant="outline" size="sm" onClick={fetchData} disabled={loading}>

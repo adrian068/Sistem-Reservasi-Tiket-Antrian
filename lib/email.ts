@@ -2,7 +2,7 @@ import { Resend } from 'resend'
 import { BRAND } from '@/lib/brand'
 
 // Inisialisasi Resend
-const resend = new Resend(process.env.RESEND_API_KEY)
+const resend = new Resend(process.env.RESEND_API_KEY || 're_placeholder')
 
 // Email perantara yang menerima OTP
 const OTP_RECIPIENT_EMAIL = process.env.OTP_RECIPIENT_EMAIL || 'disdikreset@gmail.com'

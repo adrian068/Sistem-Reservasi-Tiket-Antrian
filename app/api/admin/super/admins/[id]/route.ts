@@ -47,7 +47,7 @@ export async function PATCH(
         return NextResponse.json({
           success: true,
           message:
-            'Password admin berhasil diperbarui. Gunakan username yang sama seperti di tabel Kelola Admin.',
+            'Password petugas berhasil diperbarui. Gunakan username yang sama seperti di tabel Kelola Petugas.',
           data: { id: params.id },
         })
       }
@@ -74,8 +74,8 @@ export async function PATCH(
         success: true,
         message:
           data.aktif === false
-            ? 'Admin bidang diperbarui dan diblokir.'
-            : 'Admin bidang berhasil diperbarui. Pengguna perlu login ulang agar panel mengikuti bidang baru.',
+            ? 'Petugas bidang diperbarui dan diblokir.'
+            : 'Petugas bidang berhasil diperbarui. Pengguna perlu login ulang agar panel mengikuti bidang baru.',
         data: {
           id: result.user.id,
           nama: result.user.nama,
@@ -90,7 +90,7 @@ export async function PATCH(
 
     return NextResponse.json({
       success: true,
-      message: data.aktif ? 'Admin diaktifkan kembali.' : 'Admin diblokir — tidak bisa login.',
+      message: data.aktif ? 'Petugas diaktifkan kembali.' : 'Petugas diblokir — tidak bisa login.',
       data: { id: params.id, aktif: data.aktif },
     })
   } catch (error) {
@@ -102,7 +102,7 @@ export async function PATCH(
       return NextResponse.json({ error: message }, { status: message === 'Forbidden' ? 403 : 401 })
     }
     console.error('PATCH super admin user error:', error)
-    return NextResponse.json({ error: 'Gagal memperbarui admin' }, { status: 500 })
+    return NextResponse.json({ error: 'Gagal memperbarui petugas' }, { status: 500 })
   }
 }
 
@@ -118,7 +118,7 @@ export async function DELETE(
     }
     return NextResponse.json({
       success: true,
-      message: 'Admin berhasil dihapus.',
+      message: 'Petugas berhasil dihapus.',
     })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Error'
@@ -126,6 +126,6 @@ export async function DELETE(
       return NextResponse.json({ error: message }, { status: message === 'Forbidden' ? 403 : 401 })
     }
     console.error('DELETE super admin user error:', error)
-    return NextResponse.json({ error: 'Gagal menghapus admin' }, { status: 500 })
+    return NextResponse.json({ error: 'Gagal menghapus petugas' }, { status: 500 })
   }
 }

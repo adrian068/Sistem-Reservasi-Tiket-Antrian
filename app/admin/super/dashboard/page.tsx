@@ -52,7 +52,7 @@ export default function SuperAdminDashboardPage() {
   return (
     <SuperAdminShell
       title="Pusat Kendali"
-      subtitle="Ringkasan sistem & wewenang Super Admin"
+      subtitle="Ringkasan sistem & wewenang Admin"
     >
       {loading ? (
         <div className="flex justify-center py-20">
@@ -66,7 +66,7 @@ export default function SuperAdminDashboardPage() {
                 <Crown className="w-7 h-7" />
               </div>
               <div>
-                <h2 className="text-xl font-bold">Pusat Kendali Super Admin</h2>
+                <h2 className="text-xl font-bold">Pusat Kendali Admin</h2>
                 <p className="text-blue-100 text-sm mt-1 max-w-2xl">
                   Dari halaman ini Anda mengatur admin, memantau reservasi, dan
                   mengontrol buka/tutup layanan reservasi publik.
@@ -91,7 +91,7 @@ export default function SuperAdminDashboardPage() {
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold mb-1">Yang bisa diatur Super Admin</h3>
+            <h3 className="text-lg font-semibold mb-1">Yang bisa diatur Admin</h3>
             <p className="text-sm text-muted-foreground mb-5">
               Klik modul di bawah untuk membuka halaman pengaturan atau data.
             </p>

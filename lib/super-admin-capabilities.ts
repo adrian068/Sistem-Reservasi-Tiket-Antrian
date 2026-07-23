@@ -21,15 +21,15 @@ export type SuperAdminCapability = {
 export const SUPER_ADMIN_CAPABILITIES: SuperAdminCapability[] = [
   {
     id: "admins",
-    title: "Kelola Admin",
-    description: "Membuat admin loket & admin bidang, mengubah penugasan bidang.",
+    title: "Kelola Petugas",
+    description: "Membuat petugas loket & petugas bidang, mengubah penugasan bidang.",
     href: "/admin/super/admins",
     icon: UserCog,
     actions: [
-      "Buat admin loket (operasional harian)",
-      "Buat admin bidang PAUD, SD, SMP, PTK",
-      "Ubah nama & penugasan bidang admin",
-      "Lihat daftar semua admin",
+      "Buat petugas loket (operasional harian)",
+      "Buat petugas bidang PAUD, SD, SMP, PTK",
+      "Ubah nama & penugasan bidang petugas",
+      "Lihat daftar semua petugas",
     ],
   },
   {
@@ -72,13 +72,13 @@ export const SUPER_ADMIN_CAPABILITIES: SuperAdminCapability[] = [
   {
     id: "security",
     title: "Keamanan & Akses",
-    description: "Hak akses tertinggi hanya untuk Super Admin.",
+    description: "Hak akses tertinggi hanya untuk Admin.",
     href: "/admin/super/dashboard",
     icon: Shield,
     actions: [
       "Satu-satunya role yang bisa buat admin",
-      "Akses Pusat Kendali Super Admin",
-      "Beralih antara panel Super dan Admin",
+      "Akses Pusat Kendali Admin",
+      "Beralih antara panel Admin dan Loket",
     ],
   },
 ]

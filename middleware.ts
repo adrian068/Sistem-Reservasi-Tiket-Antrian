@@ -175,7 +175,12 @@ export function middleware(request: NextRequest) {
   const isAdminRoute =
     pathname.startsWith('/admin') || pathname.startsWith('/api/admin')
 
-  if (isAdminPaudSession(request) && isAdminRoute && !isBidangAdminRoute(pathname)) {
+  const isAllowedForBidangAdmin =
+    isBidangAdminRoute(pathname) ||
+    pathname === '/admin/profile' ||
+    pathname === '/api/admin/profile'
+
+  if (isAdminPaudSession(request) && isAdminRoute && !isAllowedForBidangAdmin) {
     if (pathname.startsWith('/api/')) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }

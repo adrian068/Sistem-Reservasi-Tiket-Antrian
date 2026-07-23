@@ -82,7 +82,20 @@ export async function getBidangDashboardData(bidangSlug: BidangSlug, dateYmd?: s
     throw new Error('Bidang tidak valid')
   }
 
-  const today = dateYmd ?? todayLocalYmd()
+  let today = dateYmd ?? todayLocalYmd()
+  if (!dateYmd) {
+    const reservationsToday = await listBidangReservationsForDate(bidangSlug, today)
+    if (reservationsToday.length === 0) {
+      const { data } = await listAllReservations()
+      const futureReservations = data
+        .filter((r) => r.date >= today && isReservationForService(r, config.serviceKey))
+        .sort((a, b) => a.date.localeCompare(b.date))
+      
+      if (futureReservations.length > 0) {
+        today = futureReservations[0].date
+      }
+    }
+  }
   const [y, m, d] = today.split('-').map(Number)
   const dayOfWeek = new Date(y, m - 1, d).getDay()
 

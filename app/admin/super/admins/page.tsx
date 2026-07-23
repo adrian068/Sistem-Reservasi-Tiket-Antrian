@@ -135,14 +135,14 @@ export default function SuperAdminAdminsPage() {
       })
       const json = await res.json()
       if (!res.ok) {
-        setError(json.error || "Gagal membuat admin")
+        setError(json.error || "Gagal membuat petugas")
         return
       }
       setSuccess(
         json.message ||
           (adminType === "bidang"
-            ? `Admin bidang ${json.data.bidangLabel ?? bidangSlug} "${json.data.nama}" berhasil dibuat. Login: ${json.data.loginUsername ?? json.data.username}`
-            : `Admin loket "${json.data.nama}" berhasil dibuat. Login: ${json.data.loginUsername ?? json.data.username}`),
+            ? `Petugas bidang ${json.data.bidangLabel ?? bidangSlug} "${json.data.nama}" berhasil dibuat. Login: ${json.data.loginUsername ?? json.data.username}`
+            : `Petugas loket "${json.data.nama}" berhasil dibuat. Login: ${json.data.loginUsername ?? json.data.username}`),
       )
       setNama("")
       setUsername("")
@@ -184,7 +184,7 @@ export default function SuperAdminAdminsPage() {
         return
       }
       setEditOpen(false)
-      setSuccess(json.message || "Admin bidang diperbarui")
+      setSuccess(json.message || "Petugas bidang diperbarui")
       await loadAdmins()
     } catch {
       setEditError("Terjadi kesalahan jaringan")
@@ -217,10 +217,10 @@ export default function SuperAdminAdminsPage() {
       })
       const json = await res.json()
       if (!res.ok) {
-        setError(json.error || `Gagal ${label} admin`)
+        setError(json.error || `Gagal ${label} petugas`)
         return
       }
-      setSuccess(json.message || `Berhasil ${label} admin.`)
+      setSuccess(json.message || `Berhasil ${label} petugas.`)
       await loadAdmins()
     } catch {
       setError("Terjadi kesalahan jaringan")
@@ -282,10 +282,10 @@ export default function SuperAdminAdminsPage() {
       })
       const json = await res.json()
       if (!res.ok) {
-        setError(json.error || "Gagal menghapus admin")
+        setError(json.error || "Gagal menghapus petugas")
         return
       }
-      setSuccess(json.message || "Admin berhasil dihapus.")
+      setSuccess(json.message || "Petugas berhasil dihapus.")
       await loadAdmins()
     } catch {
       setError("Terjadi kesalahan jaringan")
@@ -296,15 +296,15 @@ export default function SuperAdminAdminsPage() {
 
   return (
     <SuperAdminShell
-      title="Kelola Admin"
-      subtitle="Buat admin loket atau admin bidang (PAUD, SD, SMP, PTK) — ubah nama & penugasan bidang"
+      title="Kelola Petugas"
+      subtitle="Buat petugas loket atau petugas bidang (PAUD, SD, SMP, PTK) — ubah nama & penugasan bidang"
     >
       <div className="grid gap-6 lg:grid-cols-5">
         <Card className="lg:col-span-2 border-violet-200 dark:border-violet-900">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <UserPlus className="w-5 h-5 text-brand-accent" />
-              Admin Baru
+              Petugas Baru
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -321,7 +321,7 @@ export default function SuperAdminAdminsPage() {
               )}
 
               <div className="space-y-2">
-                <Label>Tipe Admin</Label>
+                <Label>Tipe Petugas</Label>
                 <Select
                   value={adminType}
                   onValueChange={(v) => setAdminType(v as "loket" | "bidang")}
@@ -330,8 +330,8 @@ export default function SuperAdminAdminsPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="loket">Admin Loket (operasional harian)</SelectItem>
-                    <SelectItem value="bidang">Admin Bidang (PAUD / SD / SMP / PTK)</SelectItem>
+                    <SelectItem value="loket">Petugas Loket (operasional harian)</SelectItem>
+                    <SelectItem value="bidang">Petugas Bidang (PAUD / SD / SMP / PTK)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -367,7 +367,7 @@ export default function SuperAdminAdminsPage() {
                   placeholder={
                     adminType === "bidang"
                       ? BIDANG_CONFIG[bidangSlug].defaultAdminNama
-                      : "Nama admin loket"
+                      : "Nama petugas loket"
                   }
                 />
               </div>
@@ -418,9 +418,9 @@ export default function SuperAdminAdminsPage() {
                     Menyimpan...
                   </>
                 ) : adminType === "bidang" ? (
-                  "Buat Admin Bidang"
+                  "Buat Petugas Bidang"
                 ) : (
-                  "Buat Admin Loket"
+                  "Buat Petugas Loket"
                 )}
               </Button>
             </form>
@@ -431,7 +431,7 @@ export default function SuperAdminAdminsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <UserCog className="w-5 h-5 text-brand-accent" />
-              Daftar Admin ({admins.length})
+              Daftar Petugas ({admins.length})
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -455,7 +455,7 @@ export default function SuperAdminAdminsPage() {
                     {admins.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
-                          Belum ada admin terdaftar
+                          Belum ada petugas terdaftar
                         </TableCell>
                       </TableRow>
                     ) : (
@@ -580,11 +580,11 @@ export default function SuperAdminAdminsPage() {
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Ubah Admin Bidang</DialogTitle>
+            <DialogTitle>Ubah Petugas Bidang</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <p className="text-sm text-muted-foreground">
-              Ubah nama tampilan atau pindahkan penugasan bidang (mis. PAUD → SD). Admin loket tidak
+              Ubah nama tampilan atau pindahkan penugasan bidang (mis. PAUD → SD). Petugas loket tidak
               dapat diubah dari sini.
             </p>
             {editError && (
@@ -614,7 +614,7 @@ export default function SuperAdminAdminsPage() {
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground">
-                Setelah diubah, admin perlu login ulang agar panel internal mengikuti bidang baru.
+                Setelah diubah, petugas perlu login ulang agar panel internal mengikuti bidang baru.
               </p>
             </div>
           </div>

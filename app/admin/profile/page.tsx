@@ -17,6 +17,7 @@ import {
   Save,
   Eye,
   EyeOff,
+  Home,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -41,6 +42,7 @@ export default function AdminProfilePage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [profile, setProfile] = useState<ProfileData | null>(null)
+  const [userSession, setUserSession] = useState<any>(null)
   
   // Form states
   const [nama, setNama] = useState("")
@@ -70,6 +72,12 @@ export default function AdminProfilePage() {
           setEmail(result.data.email)
         } else {
           setError('Gagal memuat data profil')
+        }
+
+        const sessionRes = await fetch('/api/auth/session')
+        const sessionResult = await sessionRes.json()
+        if (sessionRes.ok && sessionResult.user) {
+          setUserSession(sessionResult.user)
         }
       } catch (error) {
         console.error('Error fetching profile:', error)
@@ -188,7 +196,13 @@ export default function AdminProfilePage() {
     }
   }
 
-  const navigationItems = buildAdminNavigation("/admin/profile")
+  let navigationItems = buildAdminNavigation("/admin/profile")
+  if (userSession?.peran === 'ADMIN_PAUD') {
+    const slug = userSession.bidangSlug || 'paud'
+    navigationItems = [
+      { icon: Home, label: "Dashboard Bidang", href: `/admin/bidang/${slug}`, active: false }
+    ]
+  }
 
   if (loading) {
     return (

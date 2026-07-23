@@ -73,7 +73,7 @@ export function AdminModeSwitch({
       <div className={cn("flex gap-1", collapsed && "flex-col")}>
         <Link
           href="/admin/dashboard"
-          title="Panel Admin Biasa"
+          title="Panel Loket Antrian"
           className={cn(
             baseLink,
             inAdminPanel
@@ -86,11 +86,11 @@ export function AdminModeSwitch({
           )}
         >
           <LayoutDashboard className="w-4 h-4 shrink-0" />
-          {!collapsed && <span>Admin</span>}
+          {!collapsed && <span>Loket</span>}
         </Link>
         <Link
           href="/admin/super/dashboard"
-          title="Panel Super Admin"
+          title="Panel Admin"
           className={cn(
             baseLink,
             inSuperPanel
@@ -101,7 +101,7 @@ export function AdminModeSwitch({
           )}
         >
           <Crown className="w-4 h-4 shrink-0" />
-          {!collapsed && <span>Super</span>}
+          {!collapsed && <span>Admin</span>}
         </Link>
       </div>
     </div>

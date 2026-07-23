@@ -11,7 +11,7 @@ export type SuperAdminNavItem = {
 export function buildSuperAdminNavigation(activePath: string): SuperAdminNavItem[] {
   const items = [
     { icon: Crown, label: "Pusat Kendali", href: "/admin/super/dashboard" },
-    { icon: UserCog, label: "Kelola Admin", href: "/admin/super/admins" },
+    { icon: UserCog, label: "Kelola Petugas", href: "/admin/super/admins" },
     { icon: Calendar, label: "Reservasi", href: "/admin/super/reservasi" },
   ] as const
 
